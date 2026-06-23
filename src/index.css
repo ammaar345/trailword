@@ -1,0 +1,446 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400..700&family=Space+Grotesk:wght@400..700&family=Instrument+Serif:ital@0;1&display=swap');
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-serif: "Instrument Serif", Georgia, ui-serif, serif;
+  --font-display: "Space Grotesk", sans-serif;
+  --color-surface-50: #fafafa;
+  --color-surface-100: #f5f5f5;
+  --color-surface-200: #e5e5e5;
+  --color-surface-300: #d4d4d4;
+  --color-surface-400: #a3a3a3;
+  --color-surface-500: #737373;
+  --color-surface-600: #525252;
+  --color-surface-700: #404040;
+  --color-surface-800: #262626;
+  --color-surface-900: #171717;
+  --color-surface-950: #0a0a0a;
+  --animate-flip: flip 400ms ease-out;
+}
+
+@keyframes flip {
+  0% { transform: rotateX(0deg); }
+  50% { transform: rotateX(-90deg); }
+  100% { transform: rotateX(0deg); }
+}
+
+@keyframes glow {
+  0%, 100% { box-shadow: 0 0 0 0 transparent; }
+  50% { box-shadow: 0 0 8px 2px color-mix(in srgb, var(--tile-correct-bg) 40%, transparent); }
+}
+
+@keyframes pulse-key {
+  0% { transform: scale(1); }
+  50% { transform: scale(0.93); }
+  100% { transform: scale(1); }
+}
+
+@keyframes key-glow {
+  0% { box-shadow: 0 0 0 0 transparent, 0 2px 4px rgba(0,0,0,0.08); }
+  50% { box-shadow: 0 0 12px 4px color-mix(in srgb, var(--key-glow-color, #a3a3a3) 50%, transparent), 0 2px 8px rgba(0,0,0,0.12); }
+  100% { box-shadow: 0 0 0 0 transparent, 0 2px 4px rgba(0,0,0,0.08); }
+}
+
+@keyframes key-press {
+  0% { transform: translateY(0); }
+  40% { transform: translateY(3px); }
+  60% { transform: translateY(3px); }
+  100% { transform: translateY(0); }
+}
+
+/* --- Marshmallow keyboard key defaults --- */
+.key-marshmallow {
+  border-radius: 14px;
+  padding: 0 6px;
+  font-weight: 600;
+  font-size: 15px;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  user-select: none;
+  transition: transform 0.08s ease, box-shadow 0.15s ease, background-color 0.15s ease;
+  /* pillowy depth */
+  box-shadow:
+    0 2px 4px rgba(0,0,0,0.08),
+    0 4px 8px rgba(0,0,0,0.04),
+    inset 0 1px 0 rgba(255,255,255,0.6),
+    inset 0 -2px 0 rgba(0,0,0,0.04);
+}
+
+.key-marshmallow:active {
+  transform: translateY(3px);
+  box-shadow:
+    0 1px 2px rgba(0,0,0,0.06),
+    inset 0 1px 0 rgba(255,255,255,0.4),
+    inset 0 -1px 0 rgba(0,0,0,0.04);
+}
+
+/* Light mode default key — grayscale marshmallow */
+.key-marshmallow-default {
+  background: linear-gradient(180deg, #f2f2f2 0%, #e4e4e4 100%);
+  color: #333333;
+  border: 1px solid rgba(255,255,255,0.5);
+}
+
+.key-marshmallow-default:hover {
+  background: linear-gradient(180deg, #e8e8e8 0%, #d8d8d8 100%);
+}
+
+/* Dark mode default key — dark gray marshmallow */
+.dark .key-marshmallow-default {
+  background: linear-gradient(180deg, #2e2e2e 0%, #262626 100%);
+  color: #cccccc;
+  border: 1px solid rgba(255,255,255,0.05);
+  box-shadow:
+    0 2px 4px rgba(0,0,0,0.35),
+    0 4px 8px rgba(0,0,0,0.18),
+    inset 0 1px 0 rgba(255,255,255,0.06),
+    inset 0 -2px 0 rgba(0,0,0,0.25);
+}
+
+.dark .key-marshmallow-default:hover {
+  background: linear-gradient(180deg, #383838 0%, #2e2e2e 100%);
+}
+
+/* Key pressed state — sync glow with blue tint */
+.key-marshmallow-pressed {
+  animation: key-glow 0.3s ease-out, key-press 0.2s ease-out;
+  --key-glow-color: #8a9fc0;
+}
+
+.key-marshmallow-pressed.dark-key-pressed {
+  --key-glow-color: #6a7fa0;
+}
+
+/* --- Marshmallow game tile --- */
+.tile-marshmallow {
+  border-radius: 14px;
+  font-weight: 700;
+}
+
+/* Empty tile — inset, matches keyboard default */
+.tile-marshmallow-empty {
+  background: linear-gradient(180deg, #f2f2f2 0%, #e4e4e4 100%);
+  color: #999999;
+  border: none;
+  box-shadow:
+    inset 0 2px 4px rgba(0,0,0,0.06),
+    inset 0 -1px 0 rgba(255,255,255,0.4);
+}
+.dark .tile-marshmallow-empty {
+  background: linear-gradient(180deg, #2e2e2e 0%, #262626 100%);
+  color: #555555;
+  box-shadow:
+    inset 0 2px 4px rgba(0,0,0,0.2),
+    inset 0 -1px 0 rgba(255,255,255,0.04);
+}
+
+/* Filled tile — raised like a key */
+.tile-marshmallow-filled {
+  background: linear-gradient(180deg, #e0e0e0 0%, #d0d0d0 100%);
+  color: #222222;
+  border: none;
+  box-shadow:
+    0 2px 4px rgba(0,0,0,0.08),
+    0 4px 8px rgba(0,0,0,0.04),
+    inset 0 1px 0 rgba(255,255,255,0.5),
+    inset 0 -2px 0 rgba(0,0,0,0.04);
+}
+.dark .tile-marshmallow-filled {
+  background: linear-gradient(180deg, #383838 0%, #2e2e2e 100%);
+  color: #cccccc;
+  box-shadow:
+    0 2px 4px rgba(0,0,0,0.3),
+    0 4px 8px rgba(0,0,0,0.15),
+    inset 0 1px 0 rgba(255,255,255,0.06),
+    inset 0 -2px 0 rgba(0,0,0,0.2);
+}
+
+/* Status tile — pillowy depth on top of status color */
+.tile-marshmallow-status {
+  box-shadow:
+    0 2px 6px rgba(0,0,0,0.12),
+    0 6px 12px rgba(0,0,0,0.06),
+    inset 0 1px 0 rgba(255,255,255,0.12),
+    inset 0 -2px 0 rgba(0,0,0,0.08);
+  border: none;
+}
+
+/* --- Tile color CSS variables ---
+ * Marshmallow palette: toasted (correct), strawberry (present), vanilla cream (absent)
+ * Dark mode: warm glows, no cold grays. Hierarchy preserved.
+ */
+
+/* Keyboard key status colors (default grayscale) */
+:root {
+  --key-correct-bg: #171717;
+  --key-correct-text: #ffffff;
+  --key-correct-border: #171717;
+  --key-present-bg: #737373;
+  --key-present-text: #ffffff;
+  --key-present-border: #737373;
+  --key-absent-bg: #d4d4d4;
+  --key-absent-text: #737373;
+  --key-absent-border: #d4d4d4;
+}
+
+.dark {
+  --key-correct-bg: #f5f5f5;
+  --key-correct-text: #171717;
+  --key-correct-border: #f5f5f5;
+  --key-present-bg: #a3a3a3;
+  --key-present-text: #ffffff;
+  --key-present-border: #a3a3a3;
+  --key-absent-bg: #404040;
+  --key-absent-text: #a3a3a3;
+  --key-absent-border: #404040;
+}
+
+:root {
+  --tile-correct-bg: #f7d3d3;
+  --tile-correct-border: #f7d3d3;
+  --tile-correct-text: #3a3030;
+  --tile-present-bg: #edd5d5;
+  --tile-present-border: #edd5d5;
+  --tile-present-text: #3a3030;
+  --tile-absent-bg: #ece8e4;
+  --tile-absent-border: #ece8e4;
+  --tile-absent-text: #6a6260;
+  --tile-empty-border: #d8d0cc;
+  --tile-filled-border: #e0c0c0;
+}
+
+.dark {
+  --tile-correct-bg: #c4a2a2;
+  --tile-correct-border: #c4a2a2;
+  --tile-correct-text: #ffffff;
+  --tile-present-bg: #a8888a;
+  --tile-present-border: #a8888a;
+  --tile-present-text: #ffffff;
+  --tile-absent-bg: #2a2826;
+  --tile-absent-border: #2a2826;
+  --tile-absent-text: #c0b8b4;
+  --tile-empty-border: #4a4442;
+  --tile-filled-border: #c4a2a2;
+}
+
+/* High contrast — soft but distinct */
+[data-contrast="high"] {
+  --tile-correct-bg: #b09880;
+  --tile-correct-border: #b09880;
+  --tile-correct-text: #ffffff;
+  --tile-present-bg: #c0a0a8;
+  --tile-present-border: #c0a0a8;
+  --tile-present-text: #ffffff;
+  --tile-absent-bg: #f0ece4;
+  --tile-absent-border: #f0ece4;
+  --tile-absent-text: #4a4038;
+  --tile-empty-border: #d8ccc0;
+  --tile-filled-border: #b09880;
+}
+.dark[data-contrast="high"] {
+  --tile-correct-bg: #b09a84;
+  --tile-correct-border: #b09a84;
+  --tile-correct-text: #ffffff;
+  --tile-present-bg: #988488;
+  --tile-present-border: #988488;
+  --tile-present-text: #ffffff;
+  --tile-absent-bg: #3c3630;
+  --tile-absent-border: #3c3630;
+  --tile-absent-text: #d0c8c0;
+  --tile-empty-border: #4a4440;
+  --tile-filled-border: #b09a84;
+}
+
+/* Soft contrast — most muted, gentle */
+[data-contrast="soft"] {
+  --tile-correct-bg: #d0c0b0;
+  --tile-correct-border: #d0c0b0;
+  --tile-correct-text: #4a4238;
+  --tile-present-bg: #d4c4c8;
+  --tile-present-border: #d4c4c8;
+  --tile-present-text: #4a4238;
+  --tile-absent-bg: #eeeae4;
+  --tile-absent-border: #eeeae4;
+  --tile-absent-text: #7a7268;
+  --tile-empty-border: #d8d0c8;
+  --tile-filled-border: #d0c0b0;
+}
+.dark[data-contrast="soft"] {
+  --tile-correct-bg: #b8a898;
+  --tile-correct-border: #b8a898;
+  --tile-correct-text: #ffffff;
+  --tile-present-bg: #a09094;
+  --tile-present-border: #a09094;
+  --tile-present-text: #ffffff;
+  --tile-absent-bg: #34302c;
+  --tile-absent-border: #34302c;
+  --tile-absent-text: #c8c0b8;
+  --tile-empty-border: #4a4440;
+  --tile-filled-border: #b8a898;
+}
+
+/* Dark contrast — slightly deeper, still muted */
+[data-contrast="dark"] {
+  --tile-correct-bg: #b8a490;
+  --tile-correct-border: #b8a490;
+  --tile-correct-text: #ffffff;
+  --tile-present-bg: #c0acb0;
+  --tile-present-border: #c0acb0;
+  --tile-present-text: #ffffff;
+  --tile-absent-bg: #d8d0c8;
+  --tile-absent-border: #d8d0c8;
+  --tile-absent-text: #4a4038;
+  --tile-empty-border: #c8c0b4;
+  --tile-filled-border: #b8a490;
+}
+.dark[data-contrast="dark"] {
+  --tile-correct-bg: #a89482;
+  --tile-correct-border: #a89482;
+  --tile-correct-text: #ffffff;
+  --tile-present-bg: #8c7a80;
+  --tile-present-border: #8c7a80;
+  --tile-present-text: #ffffff;
+  --tile-absent-bg: #22201c;
+  --tile-absent-border: #22201c;
+  --tile-absent-text: #b8b0a8;
+  --tile-empty-border: #3a3530;
+  --tile-filled-border: #a89482;
+}
+
+/* Colorblind-friendly — blue = correct, amber = present, gray = absent */
+[data-contrast="colorblind"] {
+  --tile-correct-bg: #3b82f6;
+  --tile-correct-border: #3b82f6;
+  --tile-correct-text: #ffffff;
+  --tile-present-bg: #f59e0b;
+  --tile-present-border: #f59e0b;
+  --tile-present-text: #ffffff;
+  --tile-absent-bg: #d4d4d4;
+  --tile-absent-border: #d4d4d4;
+  --tile-absent-text: #525252;
+  --tile-empty-border: #c0c0c0;
+  --tile-filled-border: #a0a0a0;
+  --key-correct-bg: #3b82f6;
+  --key-correct-text: #ffffff;
+  --key-correct-border: #3b82f6;
+  --key-present-bg: #f59e0b;
+  --key-present-text: #ffffff;
+  --key-present-border: #f59e0b;
+  --key-absent-bg: #d4d4d4;
+  --key-absent-text: #525252;
+  --key-absent-border: #d4d4d4;
+}
+.dark[data-contrast="colorblind"] {
+  --tile-correct-bg: #2563eb;
+  --tile-correct-border: #2563eb;
+  --tile-correct-text: #ffffff;
+  --tile-present-bg: #d97706;
+  --tile-present-border: #d97706;
+  --tile-present-text: #ffffff;
+  --tile-absent-bg: #404040;
+  --tile-absent-border: #404040;
+  --tile-absent-text: #d4d4d4;
+  --tile-empty-border: #555555;
+  --tile-filled-border: #666666;
+  --key-correct-bg: #2563eb;
+  --key-correct-text: #ffffff;
+  --key-correct-border: #2563eb;
+  --key-present-bg: #d97706;
+  --key-present-text: #ffffff;
+  --key-present-border: #d97706;
+  --key-absent-bg: #404040;
+  --key-absent-text: #d4d4d4;
+  --key-absent-border: #404040;
+}
+
+/* (removed — winning tile text color now driven by --tile-correct-text) */
+
+/* --- Marshmallow action buttons (Hint/Share/Stats/etc) --- */
+.marshmallow-btn {
+  border-radius: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  user-select: none;
+  transition: transform 0.08s ease, box-shadow 0.15s ease, background-color 0.15s ease;
+  /* pillowy depth */
+  box-shadow:
+    0 2px 4px rgba(0,0,0,0.08),
+    0 4px 8px rgba(0,0,0,0.04),
+    inset 0 1px 0 rgba(255,255,255,0.5),
+    inset 0 -2px 0 rgba(0,0,0,0.04);
+}
+.marshmallow-btn:active {
+  transform: translateY(2px);
+  box-shadow:
+    0 1px 2px rgba(0,0,0,0.06),
+    inset 0 1px 0 rgba(255,255,255,0.3),
+    inset 0 -1px 0 rgba(0,0,0,0.04);
+}
+.marshmallow-btn-default {
+  background: linear-gradient(180deg, #f2f2f2 0%, #e4e4e4 100%);
+  color: #333333;
+  border: 1px solid rgba(255,255,255,0.5);
+}
+.marshmallow-btn-default:hover {
+  background: linear-gradient(180deg, #e8e8e8 0%, #d8d8d8 100%);
+}
+.dark .marshmallow-btn-default {
+  background: linear-gradient(180deg, #2e2e2e 0%, #262626 100%);
+  color: #cccccc;
+  border: 1px solid rgba(255,255,255,0.05);
+  box-shadow:
+    0 2px 4px rgba(0,0,0,0.35),
+    0 4px 8px rgba(0,0,0,0.18),
+    inset 0 1px 0 rgba(255,255,255,0.06),
+    inset 0 -2px 0 rgba(0,0,0,0.25);
+}
+.dark .marshmallow-btn-default:hover {
+  background: linear-gradient(180deg, #383838 0%, #2e2e2e 100%);
+}
+
+/* Blue marshmallow variant for action buttons */
+.marshmallow-btn-blue {
+  background: linear-gradient(180deg, #d6e8ff 0%, #c0daff 100%);
+  color: #2a4a7a;
+  border: 1px solid rgba(255,255,255,0.6);
+}
+.marshmallow-btn-blue:hover {
+  background: linear-gradient(180deg, #cadeff 0%, #b0ceff 100%);
+}
+.dark .marshmallow-btn-blue {
+  background: linear-gradient(180deg, #2a3d66 0%, #1f3050 100%);
+  color: #c8dfff;
+  border: 1px solid rgba(255,255,255,0.08);
+  box-shadow:
+    0 2px 4px rgba(0,0,0,0.35),
+    0 4px 8px rgba(0,0,0,0.18),
+    inset 0 1px 0 rgba(255,255,255,0.06),
+    inset 0 -2px 0 rgba(0,0,0,0.25);
+}
+.dark .marshmallow-btn-blue:hover {
+  background: linear-gradient(180deg, #304570 0%, #253860 100%);
+}
+
+/* --- Blue marshmallow header bar --- */
+.marshmallow-header {
+  background: linear-gradient(180deg, rgba(214,232,255,0.92) 0%, rgba(200,222,255,0.88) 100%);
+  border-bottom: 1px solid rgba(192,218,255,0.6);
+  backdrop-filter: blur(12px);
+}
+.dark .marshmallow-header {
+  background: linear-gradient(180deg, rgba(42,61,102,0.92) 0%, rgba(31,48,80,0.88) 100%);
+  border-bottom: 1px solid rgba(31,48,80,0.6);
+}
+
+/* --- Blue marshmallow clue card --- */
+.marshmallow-card {
+  background: linear-gradient(135deg, #d6e8ff 0%, #c0daff 100%);
+  border: 1px solid rgba(255,255,255,0.6);
+}
+.dark .marshmallow-card {
+  background: linear-gradient(135deg, #2a3d66 0%, #1f3050 100%);
+  border: 1px solid rgba(31,48,80,0.6);
+}

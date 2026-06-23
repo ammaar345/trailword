@@ -1,0 +1,17 @@
+{
+  "name": "TrailWord Daily Puzzle",
+  "short_name": "TrailWord",
+  "description": "A daily 5-letter word puzzle with clue trails.",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#101828",
+  "theme_color": "#101828",
+  "icons": [
+    {
+      "src": "assets/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

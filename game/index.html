@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#101828">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="stylesheet" href="styles.css">
+  <title>TrailWord - Daily Word Puzzle</title>
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <button class="icon-button" id="helpButton" aria-label="How to play">?</button>
+      <div>
+        <h1>TrailWord</h1>
+        <p id="dateLine">Daily 5-letter puzzle</p>
+      </div>
+      <button class="icon-button" id="statsButton" aria-label="Stats">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19V5M4 19h16M8 16v-5M12 16V7M16 16v-8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      </button>
+    </header>
+
+    <main>
+      <section class="hero" aria-label="Today's clue">
+        <span class="eyebrow">Today's trail</span>
+        <strong id="categoryText">Loading…</strong>
+        <p id="hintText">Guess the hidden 5-letter word.</p>
+      </section>
+
+      <section class="ad-slot" aria-label="Advertisement">
+        <div id="carbonads" class="carbon-placeholder">
+          <span>Ad slot</span>
+          <small>Carbon Ads tag goes here</small>
+        </div>
+      </section>
+
+      <section id="board" class="board" aria-label="Guess board"></section>
+      <p id="message" class="message" role="status" aria-live="polite"></p>
+
+      <section class="actions" aria-label="Game actions">
+        <button class="secondary-button" id="hintButton">Free hint</button>
+        <button class="secondary-button" id="buyHintButton">Buy hint pack</button>
+        <button class="secondary-button" id="shareButton">Share</button>
+      </section>
+
+      <section class="keyboard" aria-label="Keyboard"></section>
+    </main>
+  </div>
+
+  <dialog id="helpDialog">
+    <div class="dialog-card">
+      <h2>How to play</h2>
+      <ol>
+        <li>Guess the hidden 5-letter word in 6 tries.</li>
+        <li>Green tile means right letter, right place.</li>
+        <li>Yellow tile means right letter, wrong place.</li>
+        <li>Gray tile means not in today's word.</li>
+        <li>Use the clue trail and hint pack when stuck.</li>
+      </ol>
+      <button class="primary-button" id="closeHelpButton">Start playing</button>
+    </div>
+  </dialog>
+
+  <dialog id="statsDialog">
+    <div class="dialog-card">
+      <h2>Stats</h2>
+      <div id="statsSummary" class="stats-grid"></div>
+      <div id="distribution" class="distribution"></div>
+      <button class="primary-button" id="resetStatsButton">Reset stats</button>
+      <button class="secondary-button" id="closeStatsButton">Close</button>
+    </div>
+  </dialog>
+
+  <script src="words.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
