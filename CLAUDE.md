@@ -138,19 +138,33 @@ Priority order: Gumroad hint packs → Carbon Ads → Premium supporter → Arch
   - "Dither" link in GamePage.tsx
 
 ### Board state persistence (daily mode)
-- `src/components/game/Game.tsx` — saves `rows`, `currentRow`, `currentGuess`, `gameOver`, `solved`, `freeHintUsed`, `keyStatus` to `localStorage['trailword:board']` on every change
+- `src/components/game/Game.tsx` — saves `rows`, `currentRow`, `currentGuess`, `gameOver`, `solved`, `hintLevel`, `keyStatus` to `localStorage['trailword:board']` on every change
 - `loadBoardState()` restores full board on page refresh (checks day + mode match)
+- Backward-compatible: migrates legacy `freeHintUsed: true` to `hintLevel: 1`
 - `startNewGame` clears saved board state when starting fresh daily
 - `gameOver` flag prevents replay on restored completed boards (addLetter/handleSubmit check it)
 - Stats dialog auto-opens on restore when `stats.lastPlayed === today`
+
+### Streak display in header
+- Clue card shows "Streak X . Best Y" next to mode badge (visible after first play)
+- Uses `activeStats` which separates daily vs practice streaks
+
+### Tiered hints (2 free hints before buy prompt)
+- Replaced `freeHintUsed` boolean with `hintLevel` counter (0/1/2)
+- Tier 1 (level 0): reveals a random letter present in the answer ("The answer contains X") — picks from unguessed letters
+- Tier 2 (level 1): reveals exact position ("Position 3 is R") — same as old single-hint behavior
+- Tier 3 (level 2+): redirects to Gumroad purchase if not already bought
+- Backward-compatible with saved boards that used old `freeHintUsed` field
+- Unlimited hints after purchase
 
 ## Pending
 
 ### Gumroad hints not fully wired
 - URL `https://ammaar345.gumroad.com/l/trailword-hints` in Game.tsx constant
-- Free hint works (first use auto-fills a letter)
-- Need to: create Gumroad product, verify purchase state, redirect to buy after free hint used
-- Currently opens Gumroad URL in new tab — no license key verification
+- 2 free hints (letter reveal → position reveal), then redirect to buy
+- Hints purchased state stored in `localStorage['trailword:hints-purchased']` (SETS on "I've purchased" button in Settings)
+- Need to: create Gumroad product with `?checkout=true` return param
+- Currently: purchase verification is manual (user clicks "I've purchased" in Settings)
 
 ### Carbon Ads not added
 - Need to sign up at carbonads.net, get snippet, add to GamePage.tsx
@@ -159,9 +173,7 @@ Priority order: Gumroad hint packs → Carbon Ads → Premium supporter → Arch
 ## What Can Be Better
 
 ### Gameplay
-- **Tiered hints** (first letter → category hint → position reveal) instead of single free hint
 - **Word definitions + example sentences** shown after solving
-- **Streak display** — show current streak and max streak in the game header, not just Stats dialog
 - **Daily puzzle archive** — $2 one-time to play past daily puzzles (Gumroad license key)
 - **Custom trail creation** — user picks 5-letter word, system generates category + hint
 - **Infinite practice mode** — no 6-guess limit, just free-form guessing

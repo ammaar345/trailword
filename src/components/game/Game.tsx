@@ -31,7 +31,8 @@ interface BoardState {
   currentGuess: string;
   gameOver: boolean;
   solved: boolean;
-  freeHintUsed: boolean;
+  freeHintUsed?: boolean; // legacy
+  hintLevel: number;
   keyStatus: KeyStatus;
 }
 
@@ -39,6 +40,10 @@ function loadBoardState(): BoardState | null {
   try {
     const saved = JSON.parse(localStorage.getItem(BOARD_STATE_KEY) || 'null');
     if (!saved || saved.day !== getDailyPuzzle().day || saved.mode !== 'daily') return null;
+    // Migrate legacy freeHintUsed boolean to hintLevel
+    if (typeof saved.hintLevel !== 'number') {
+      saved.hintLevel = saved.freeHintUsed ? 1 : 0;
+    }
     return saved;
   } catch {
     return null;
@@ -59,7 +64,7 @@ export default function Game() {
   const [solved, setSolved] = useState<boolean>(savedBoard?.solved ?? false);
   const [message, setMessage] = useState<string>('');
   const [showStats, setShowStats] = useState<boolean>(false);
-  const [freeHintUsed, setFreeHintUsed] = useState<boolean>(savedBoard?.freeHintUsed ?? false);
+  const [hintLevel, setHintLevel] = useState<number>(savedBoard?.hintLevel ?? 0);
   const [hintsPurchased, setHintsPurchased] = useState<boolean>(() => {
     try { return localStorage.getItem(HINTS_PURCHASED_KEY) === 'true'; } catch { return false; }
   });
@@ -109,11 +114,11 @@ export default function Game() {
       currentGuess,
       gameOver,
       solved,
-      freeHintUsed,
+      hintLevel,
       keyStatus,
     };
     localStorage.setItem(BOARD_STATE_KEY, JSON.stringify(state));
-  }, [rows, currentRow, currentGuess, gameOver, solved, freeHintUsed, keyStatus, mode, puzzle.day]);
+  }, [rows, currentRow, currentGuess, gameOver, solved, hintLevel, keyStatus, mode, puzzle.day]);
 
   const today = puzzle.day;
 
@@ -138,7 +143,7 @@ export default function Game() {
     setGameOver(false);
     setSolved(false);
     setMessage('');
-    setFreeHintUsed(false);
+    setHintLevel(0);
     setKeyStatus({});
     setAnimating(false);
     // Clear saved board state for daily mode
@@ -348,14 +353,22 @@ export default function Game() {
   });
 
   const purchaseHints = () => {
-    // Save a flag so we know they returned from checkout
     const checkoutUrl = GUMROAD_HINTS_URL + '?checkout=true';
     window.open(checkoutUrl, '_blank');
+  };
+
+  const getUniqueAnswerLetter = (): string => {
+    // Pick a random unique letter from answer not yet guessed
+    const guessed = new Set(rows.flatMap(r => r.statuses ? r.letters : []));
+    const available = puzzle.answer.split('').filter(l => !guessed.has(l));
+    if (available.length === 0) return puzzle.answer[0];
+    return available[Math.floor(Math.random() * available.length)];
   };
 
   const handleFreeHint = () => {
     sounds.play('click');
     if (gameOver) return;
+
     // If already purchased, give unlimited hints
     if (hintsPurchased) {
       const pos = currentGuess.length < COL_COUNT ? currentGuess.length : 0;
@@ -364,15 +377,27 @@ export default function Game() {
       addLetter(puzzle.answer[pos].toUpperCase());
       return;
     }
-    if (freeHintUsed) {
-      purchaseHints();
+
+    if (hintLevel === 0) {
+      // Tier 1: reveal a letter in the word
+      const letter = getUniqueAnswerLetter().toUpperCase();
+      setHintLevel(1);
+      showMessage(`The answer contains "${letter}"`);
       return;
     }
-    const pos = currentGuess.length < COL_COUNT ? currentGuess.length : 0;
-    const letter = puzzle.answer[pos].toUpperCase();
-    setFreeHintUsed(true);
-    showMessage(`Hint: position ${pos + 1} is ${letter}`);
-    addLetter(puzzle.answer[pos].toUpperCase());
+
+    if (hintLevel === 1) {
+      // Tier 2: reveal a specific position
+      const pos = currentGuess.length < COL_COUNT ? currentGuess.length : 0;
+      const letter = puzzle.answer[pos].toUpperCase();
+      setHintLevel(2);
+      showMessage(`Hint: position ${pos + 1} is ${letter}`);
+      addLetter(puzzle.answer[pos].toUpperCase());
+      return;
+    }
+
+    // Tier 3+: buy hints
+    purchaseHints();
   };
 
   const handleShare = () => {
@@ -443,6 +468,11 @@ export default function Game() {
             )}>
               {mode === 'practice' ? 'PRACTICE' : 'DAILY'}
             </span>
+            {activeStats.played > 0 && (
+              <span className="ml-auto text-[10px] text-surface-400 dark:text-surface-500 font-sans tracking-normal">
+                Streak {activeStats.streak} &middot; Best {activeStats.maxStreak}
+              </span>
+            )}
           </span>
           <p className="mt-1 text-lg text-surface-700 dark:text-surface-300 font-display">
             {puzzle.category}
@@ -484,7 +514,7 @@ export default function Game() {
         {/* Actions */}
         <div className="flex w-full gap-2">
           <ActionButton variant="blue"
-            label={freeHintUsed && !hintsPurchased ? 'Buy hints' : 'Hint'}
+            label={hintLevel >= 2 && !hintsPurchased ? 'Buy hints' : 'Hint'}
             icon={<HintIcon className="size-4" />}
             onClick={handleFreeHint}
           />
