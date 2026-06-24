@@ -137,6 +137,13 @@ Priority order: Gumroad hint packs → Carbon Ads → Premium supporter → Arch
   - Dark mode toggle in GamePage.tsx
   - "Dither" link in GamePage.tsx
 
+### Board state persistence (daily mode)
+- `src/components/game/Game.tsx` — saves `rows`, `currentRow`, `currentGuess`, `gameOver`, `solved`, `freeHintUsed`, `keyStatus` to `localStorage['trailword:board']` on every change
+- `loadBoardState()` restores full board on page refresh (checks day + mode match)
+- `startNewGame` clears saved board state when starting fresh daily
+- `gameOver` flag prevents replay on restored completed boards (addLetter/handleSubmit check it)
+- Stats dialog auto-opens on restore when `stats.lastPlayed === today`
+
 ## Pending
 
 ### Gumroad hints not fully wired
@@ -152,7 +159,6 @@ Priority order: Gumroad hint packs → Carbon Ads → Premium supporter → Arch
 ## What Can Be Better
 
 ### Gameplay
-- **Board state persistence** — save `rows`, `currentRow`, `gameOver`, `solved` to localStorage so refresh restores completed board (currently only stats persist). Needs restore + prevent replay on solved daily.
 - **Tiered hints** (first letter → category hint → position reveal) instead of single free hint
 - **Word definitions + example sentences** shown after solving
 - **Streak display** — show current streak and max streak in the game header, not just Stats dialog
