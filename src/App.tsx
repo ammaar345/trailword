@@ -1,10 +1,23 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import GamePage from '@/pages/GamePage';
 import DitherShaderDemo from '@/components/dither-shader-demo';
 import { LogoIcon, MoonIcon, SunIcon, GithubIcon } from '@/components/ui/icons';
 
+const DARK_KEY = 'trailword:dark';
+
 export default function App() {
-  const [dark, setDark] = useState(true);
+  const [dark, setDark] = useState(() => {
+    try {
+      const saved = localStorage.getItem(DARK_KEY);
+      return saved !== null ? saved === 'true' : true;
+    } catch {
+      return true;
+    }
+  });
+
+  useEffect(() => {
+    localStorage.setItem(DARK_KEY, String(dark));
+  }, [dark]);
   const [page, setPage] = useState<'game' | 'demo'>('game');
 
   if (page === 'demo') {

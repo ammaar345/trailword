@@ -11,6 +11,8 @@ interface SettingsDialogProps {
   onVolumeChange: (v: number) => void;
   contrast: ContrastVariant;
   onContrastChange: (v: ContrastVariant) => void;
+  hintsPurchased?: boolean;
+  onActivateHints?: () => void;
 }
 
 const CONTRAST_OPTIONS: { value: ContrastVariant; label: string; colors: [string, string, string] }[] = [
@@ -32,6 +34,8 @@ export default function SettingsDialog({
   onVolumeChange,
   contrast,
   onContrastChange,
+  hintsPurchased = false,
+  onActivateHints,
 }: SettingsDialogProps) {
   if (!open) return null;
 
@@ -108,6 +112,21 @@ export default function SettingsDialog({
             ))}
           </div>
         </div>
+
+        {/* Hint packs */}
+        {!hintsPurchased && onActivateHints && (
+          <div className="mb-5 rounded-xl border border-amber-200 dark:border-amber-900 bg-amber-50 dark:bg-amber-950 p-3">
+            <p className="text-xs text-amber-700 dark:text-amber-300 mb-2">
+              Purchased hint packs? Click below to activate unlimited hints.
+            </p>
+            <button
+              onClick={onActivateHints}
+              className="w-full rounded-lg bg-amber-500 py-1.5 text-xs font-medium text-white hover:bg-amber-600 transition"
+            >
+              I've purchased — activate hints
+            </button>
+          </div>
+        )}
 
         {/* Close */}
         <button

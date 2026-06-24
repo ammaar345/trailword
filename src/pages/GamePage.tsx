@@ -1,6 +1,7 @@
 import { LogoIcon, MoonIcon, SunIcon } from '@/components/ui/icons';
 import Game from '@/components/game/Game';
 import CarbonAds from '@/components/ui/CarbonAds';
+import sounds from '@/lib/sounds';
 
 interface GamePageProps {
   dark: boolean;
@@ -20,12 +21,13 @@ export default function GamePage({ dark, onToggleDark }: GamePageProps) {
           <div className="flex items-center gap-1">
             <a
               href="/demo"
+              onClick={() => sounds.play('click')}
               className="rounded-lg px-3 py-1.5 text-xs text-surface-400 hover:text-surface-600 dark:hover:text-surface-300 transition"
             >
               Dither
             </a>
             <button
-              onClick={onToggleDark}
+              onClick={() => { sounds.play('click'); onToggleDark(); }}
               className="rounded-lg p-2 text-surface-400 hover:text-surface-600 dark:hover:text-surface-300 transition"
               aria-label="Toggle theme"
             >

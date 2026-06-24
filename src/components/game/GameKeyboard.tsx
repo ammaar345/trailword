@@ -43,6 +43,9 @@ export default function GameKeyboard({ keyStatus, onKey, pressedKey }: GameKeybo
                 backgroundColor: 'var(--key-absent-bg)',
                 color: 'var(--key-absent-text)',
                 borderColor: 'var(--key-absent-border)',
+                textDecoration: 'line-through',
+                textDecorationColor: 'var(--key-absent-text)',
+                opacity: 0.65,
               };
             }
 

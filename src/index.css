@@ -181,9 +181,9 @@
   --key-present-bg: #737373;
   --key-present-text: #ffffff;
   --key-present-border: #737373;
-  --key-absent-bg: #d4d4d4;
-  --key-absent-text: #737373;
-  --key-absent-border: #d4d4d4;
+  --key-absent-bg: #bcbcbc;
+  --key-absent-text: #888888;
+  --key-absent-border: #bcbcbc;
 }
 
 .dark {
@@ -193,9 +193,9 @@
   --key-present-bg: #a3a3a3;
   --key-present-text: #ffffff;
   --key-present-border: #a3a3a3;
-  --key-absent-bg: #404040;
-  --key-absent-text: #a3a3a3;
-  --key-absent-border: #404040;
+  --key-absent-bg: #1f1f1f;
+  --key-absent-text: #666666;
+  --key-absent-border: #1f1f1f;
 }
 
 :root {
@@ -356,7 +356,271 @@
   --key-absent-border: #404040;
 }
 
-/* (removed — winning tile text color now driven by --tile-correct-text) */
+/* --- Per-contrast surface colors + key status colors ---
+ * Each variant overrides --color-surface-* to change the entire page feel,
+ * plus --key-* for keyboard status colors.
+ */
+
+/* ========== MEDIUM (default) ========== */
+[data-contrast="medium"] {
+  /* Surface — same as default Tailwind palette */
+  --key-correct-bg: #171717;
+  --key-correct-text: #ffffff;
+  --key-correct-border: #171717;
+  --key-present-bg: #737373;
+  --key-present-text: #ffffff;
+  --key-present-border: #737373;
+  --key-absent-bg: #bcbcbc;
+  --key-absent-text: #888888;
+  --key-absent-border: #bcbcbc;
+}
+.dark[data-contrast="medium"] {
+  --key-correct-bg: #f5f5f5;
+  --key-correct-text: #171717;
+  --key-correct-border: #f5f5f5;
+  --key-present-bg: #a3a3a3;
+  --key-present-text: #ffffff;
+  --key-present-border: #a3a3a3;
+  --key-absent-bg: #1f1f1f;
+  --key-absent-text: #666666;
+  --key-absent-border: #1f1f1f;
+}
+
+/* ========== HIGH contrast ========== */
+[data-contrast="high"] {
+  --color-surface-50: #ffffff;
+  --color-surface-100: #f8f8f8;
+  --color-surface-200: #e8e8e8;
+  --color-surface-300: #d0d0d0;
+  --color-surface-400: #9a9a9a;
+  --color-surface-500: #666666;
+  --color-surface-600: #444444;
+  --color-surface-700: #2e2e2e;
+  --color-surface-800: #1a1a1a;
+  --color-surface-900: #0d0d0d;
+  --color-surface-950: #000000;
+  --key-correct-bg: #0d0d0d;
+  --key-correct-text: #ffffff;
+  --key-correct-border: #0d0d0d;
+  --key-present-bg: #666666;
+  --key-present-text: #ffffff;
+  --key-present-border: #666666;
+  --key-absent-bg: #c8c8c8;
+  --key-absent-text: #777777;
+  --key-absent-border: #c8c8c8;
+}
+.dark[data-contrast="high"] {
+  --color-surface-50: #0a0a0a;
+  --color-surface-100: #141414;
+  --color-surface-200: #1f1f1f;
+  --color-surface-300: #333333;
+  --color-surface-400: #555555;
+  --color-surface-500: #777777;
+  --color-surface-600: #999999;
+  --color-surface-700: #bbbbbb;
+  --color-surface-800: #dddddd;
+  --color-surface-900: #eeeeee;
+  --color-surface-950: #f5f5f5;
+  --key-correct-bg: #ffffff;
+  --key-correct-text: #0d0d0d;
+  --key-correct-border: #ffffff;
+  --key-present-bg: #bbbbbb;
+  --key-present-text: #0d0d0d;
+  --key-present-border: #bbbbbb;
+  --key-absent-bg: #1a1a1a;
+  --key-absent-text: #777777;
+  --key-absent-border: #1a1a1a;
+}
+
+/* ========== SOFT ========== */
+[data-contrast="soft"] {
+  --color-surface-50: #fdfcfa;
+  --color-surface-100: #f8f6f0;
+  --color-surface-200: #eeeae2;
+  --color-surface-300: #dfd9ce;
+  --color-surface-400: #c6bfb0;
+  --color-surface-500: #a89f8e;
+  --color-surface-600: #8a8272;
+  --color-surface-700: #6c6558;
+  --color-surface-800: #4a453c;
+  --color-surface-900: #2d2924;
+  --color-surface-950: #181612;
+  --key-correct-bg: #2d2924;
+  --key-correct-text: #fdfcfa;
+  --key-correct-border: #2d2924;
+  --key-present-bg: #8a8272;
+  --key-present-text: #fdfcfa;
+  --key-present-border: #8a8272;
+  --key-absent-bg: #dfd9ce;
+  --key-absent-text: #8a8272;
+  --key-absent-border: #dfd9ce;
+}
+.dark[data-contrast="soft"] {
+  --color-surface-50: #1a1814;
+  --color-surface-100: #24211c;
+  --color-surface-200: #2f2b26;
+  --color-surface-300: #423d36;
+  --color-surface-400: #605a50;
+  --color-surface-500: #7e766b;
+  --color-surface-600: #9c9488;
+  --color-surface-700: #bab2a6;
+  --color-surface-800: #d8d0c4;
+  --color-surface-900: #eee8de;
+  --color-surface-950: #f8f4ec;
+  --key-correct-bg: #eee8de;
+  --key-correct-text: #1a1814;
+  --key-correct-border: #eee8de;
+  --key-present-bg: #9c9488;
+  --key-present-text: #ffffff;
+  --key-present-border: #9c9488;
+  --key-absent-bg: #24211c;
+  --key-absent-text: #605a50;
+  --key-absent-border: #24211c;
+}
+
+/* ========== DARK ========== */
+[data-contrast="dark"] {
+  --color-surface-50: #f0ece8;
+  --color-surface-100: #e0dcd8;
+  --color-surface-200: #c8c4c0;
+  --color-surface-300: #a8a4a0;
+  --color-surface-400: #888480;
+  --color-surface-500: #686460;
+  --color-surface-600: #504c48;
+  --color-surface-700: #383430;
+  --color-surface-800: #282420;
+  --color-surface-900: #181410;
+  --color-surface-950: #0c0a08;
+  --key-correct-bg: #181410;
+  --key-correct-text: #f0ece8;
+  --key-correct-border: #181410;
+  --key-present-bg: #686460;
+  --key-present-text: #f0ece8;
+  --key-present-border: #686460;
+  --key-absent-bg: #c8c4c0;
+  --key-absent-text: #686460;
+  --key-absent-border: #c8c4c0;
+}
+.dark[data-contrast="dark"] {
+  --color-surface-50: #12100e;
+  --color-surface-100: #1c1a17;
+  --color-surface-200: #262320;
+  --color-surface-300: #383430;
+  --color-surface-400: #56524d;
+  --color-surface-500: #74706b;
+  --color-surface-600: #928e89;
+  --color-surface-700: #b0aca7;
+  --color-surface-800: #cecac5;
+  --color-surface-900: #e6e2de;
+  --color-surface-950: #f2efeb;
+  --key-correct-bg: #e6e2de;
+  --key-correct-text: #12100e;
+  --key-correct-border: #e6e2de;
+  --key-present-bg: #928e89;
+  --key-present-text: #12100e;
+  --key-present-border: #928e89;
+  --key-absent-bg: #1c1a17;
+  --key-absent-text: #56524d;
+  --key-absent-border: #1c1a17;
+}
+
+/* ========== COLORBLIND ========== */
+/* Surface colors stay same as default medium, only tile/key colors change */
+[data-contrast="colorblind"] {
+  --key-correct-bg: #3b82f6;
+  --key-correct-text: #ffffff;
+  --key-correct-border: #3b82f6;
+  --key-present-bg: #f59e0b;
+  --key-present-text: #ffffff;
+  --key-present-border: #f59e0b;
+  --key-absent-bg: #bcbcbc;
+  --key-absent-text: #888888;
+  --key-absent-border: #bcbcbc;
+}
+.dark[data-contrast="colorblind"] {
+  --key-correct-bg: #2563eb;
+  --key-correct-text: #ffffff;
+  --key-correct-border: #2563eb;
+  --key-present-bg: #d97706;
+  --key-present-text: #ffffff;
+  --key-present-border: #d97706;
+  --key-absent-bg: #1f1f1f;
+  --key-absent-text: #666666;
+  --key-absent-border: #1f1f1f;
+}
+
+/* --- Per-contrast header & card overrides --- */
+/* HIGH */
+[data-contrast="high"] .marshmallow-header {
+  background: linear-gradient(180deg, rgba(255,255,255,0.95) 0%, rgba(240,240,240,0.90) 100%);
+  border-bottom: 1px solid rgba(200,200,200,0.6);
+}
+.dark[data-contrast="high"] .marshmallow-header {
+  background: linear-gradient(180deg, rgba(10,10,10,0.95) 0%, rgba(20,20,20,0.90) 100%);
+  border-bottom: 1px solid rgba(51,51,51,0.6);
+}
+[data-contrast="high"] .marshmallow-card {
+  background: linear-gradient(135deg, #ffffff 0%, #f0f0f0 100%);
+  border: 1px solid rgba(200,200,200,0.6);
+}
+.dark[data-contrast="high"] .marshmallow-card {
+  background: linear-gradient(135deg, #1a1a1a 0%, #141414 100%);
+  border: 1px solid rgba(51,51,51,0.6);
+}
+
+/* SOFT */
+[data-contrast="soft"] .marshmallow-header {
+  background: linear-gradient(180deg, rgba(248,246,240,0.92) 0%, rgba(238,234,226,0.88) 100%);
+  border-bottom: 1px solid rgba(223,217,206,0.6);
+}
+.dark[data-contrast="soft"] .marshmallow-header {
+  background: linear-gradient(180deg, rgba(26,24,20,0.95) 0%, rgba(36,33,28,0.90) 100%);
+  border-bottom: 1px solid rgba(66,61,54,0.6);
+}
+[data-contrast="soft"] .marshmallow-card {
+  background: linear-gradient(135deg, #f8f6f0 0%, #eeeae2 100%);
+  border: 1px solid rgba(223,217,206,0.6);
+}
+.dark[data-contrast="soft"] .marshmallow-card {
+  background: linear-gradient(135deg, #2f2b26 0%, #24211c 100%);
+  border: 1px solid rgba(66,61,54,0.6);
+}
+
+/* DARK */
+[data-contrast="dark"] .marshmallow-header {
+  background: linear-gradient(180deg, rgba(240,236,232,0.92) 0%, rgba(224,220,216,0.88) 100%);
+  border-bottom: 1px solid rgba(200,196,192,0.6);
+}
+.dark[data-contrast="dark"] .marshmallow-header {
+  background: linear-gradient(180deg, rgba(18,16,14,0.95) 0%, rgba(28,26,23,0.90) 100%);
+  border-bottom: 1px solid rgba(56,52,48,0.6);
+}
+[data-contrast="dark"] .marshmallow-card {
+  background: linear-gradient(135deg, #e0dcd8 0%, #c8c4c0 100%);
+  border: 1px solid rgba(168,164,160,0.6);
+}
+.dark[data-contrast="dark"] .marshmallow-card {
+  background: linear-gradient(135deg, #262320 0%, #1c1a17 100%);
+  border: 1px solid rgba(56,52,48,0.6);
+}
+
+/* COLORBLIND — keep same as medium */
+[data-contrast="colorblind"] .marshmallow-header {
+  background: linear-gradient(180deg, rgba(214,232,255,0.92) 0%, rgba(200,222,255,0.88) 100%);
+  border-bottom: 1px solid rgba(192,218,255,0.6);
+}
+.dark[data-contrast="colorblind"] .marshmallow-header {
+  background: linear-gradient(180deg, rgba(42,61,102,0.92) 0%, rgba(31,48,80,0.88) 100%);
+  border-bottom: 1px solid rgba(31,48,80,0.6);
+}
+[data-contrast="colorblind"] .marshmallow-card {
+  background: linear-gradient(135deg, #d6e8ff 0%, #c0daff 100%);
+  border: 1px solid rgba(255,255,255,0.6);
+}
+.dark[data-contrast="colorblind"] .marshmallow-card {
+  background: linear-gradient(135deg, #2a3d66 0%, #1f3050 100%);
+  border: 1px solid rgba(31,48,80,0.6);
+}
 
 /* --- Marshmallow action buttons (Hint/Share/Stats/etc) --- */
 .marshmallow-btn {
@@ -365,7 +629,6 @@
   cursor: pointer;
   user-select: none;
   transition: transform 0.08s ease, box-shadow 0.15s ease, background-color 0.15s ease;
-  /* pillowy depth */
   box-shadow:
     0 2px 4px rgba(0,0,0,0.08),
     0 4px 8px rgba(0,0,0,0.04),
@@ -422,25 +685,4 @@
 }
 .dark .marshmallow-btn-blue:hover {
   background: linear-gradient(180deg, #304570 0%, #253860 100%);
-}
-
-/* --- Blue marshmallow header bar --- */
-.marshmallow-header {
-  background: linear-gradient(180deg, rgba(214,232,255,0.92) 0%, rgba(200,222,255,0.88) 100%);
-  border-bottom: 1px solid rgba(192,218,255,0.6);
-  backdrop-filter: blur(12px);
-}
-.dark .marshmallow-header {
-  background: linear-gradient(180deg, rgba(42,61,102,0.92) 0%, rgba(31,48,80,0.88) 100%);
-  border-bottom: 1px solid rgba(31,48,80,0.6);
-}
-
-/* --- Blue marshmallow clue card --- */
-.marshmallow-card {
-  background: linear-gradient(135deg, #d6e8ff 0%, #c0daff 100%);
-  border: 1px solid rgba(255,255,255,0.6);
-}
-.dark .marshmallow-card {
-  background: linear-gradient(135deg, #2a3d66 0%, #1f3050 100%);
-  border: 1px solid rgba(31,48,80,0.6);
 }

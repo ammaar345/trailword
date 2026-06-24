@@ -16,6 +16,7 @@ const ROW_COUNT = 6;
 const COL_COUNT = 5;
 const BOARD_STATE_KEY = 'trailword:board';
 const GUMROAD_HINTS_URL = 'https://ammaar345.gumroad.com/l/trailword-hints';
+const HINTS_PURCHASED_KEY = 'trailword:hints-purchased';
 
 interface Row {
   letters: string[];
@@ -59,6 +60,9 @@ export default function Game() {
   const [message, setMessage] = useState<string>('');
   const [showStats, setShowStats] = useState<boolean>(false);
   const [freeHintUsed, setFreeHintUsed] = useState<boolean>(savedBoard?.freeHintUsed ?? false);
+  const [hintsPurchased, setHintsPurchased] = useState<boolean>(() => {
+    try { return localStorage.getItem(HINTS_PURCHASED_KEY) === 'true'; } catch { return false; }
+  });
   const [keyStatus, setKeyStatus] = useState<KeyStatus>(savedBoard?.keyStatus ?? {});
   const [stats, setStats] = useState<GameStats>(loadStats);
   const [practiceStats, setPracticeStats] = useState<GameStats>(loadPracticeStats);
@@ -343,11 +347,25 @@ export default function Game() {
     return { letters: [] as string[], statuses: undefined as TileStatus[] | undefined };
   });
 
+  const purchaseHints = () => {
+    // Save a flag so we know they returned from checkout
+    const checkoutUrl = GUMROAD_HINTS_URL + '?checkout=true';
+    window.open(checkoutUrl, '_blank');
+  };
+
   const handleFreeHint = () => {
     sounds.play('click');
     if (gameOver) return;
+    // If already purchased, give unlimited hints
+    if (hintsPurchased) {
+      const pos = currentGuess.length < COL_COUNT ? currentGuess.length : 0;
+      const letter = puzzle.answer[pos].toUpperCase();
+      showMessage(`Hint: position ${pos + 1} is ${letter}`);
+      addLetter(puzzle.answer[pos].toUpperCase());
+      return;
+    }
     if (freeHintUsed) {
-      window.open(GUMROAD_HINTS_URL, '_blank');
+      purchaseHints();
       return;
     }
     const pos = currentGuess.length < COL_COUNT ? currentGuess.length : 0;
@@ -393,13 +411,20 @@ export default function Game() {
     savePracticeStats(fresh);
   };
 
-  const handleCloseStats = () => setShowStats(false);
+  const handleCloseStats = () => { sounds.play('click'); setShowStats(false); };
 
   const handleOpenSettings = () => {
     sounds.play('click');
     setShowSettings(true);
   };
-  const handleCloseSettings = () => setShowSettings(false);
+  const handleCloseSettings = () => { sounds.play('click'); setShowSettings(false); };
+
+  const handleActivateHints = () => {
+    sounds.play('click');
+    localStorage.setItem(HINTS_PURCHASED_KEY, 'true');
+    setHintsPurchased(true);
+    showMessage('Hints activated!');
+  };
 
   const activeStats = mode === 'practice' ? practiceStats : stats;
 
@@ -459,7 +484,7 @@ export default function Game() {
         {/* Actions */}
         <div className="flex w-full gap-2">
           <ActionButton variant="blue"
-            label={freeHintUsed ? 'Buy hints' : 'Hint'}
+            label={freeHintUsed && !hintsPurchased ? 'Buy hints' : 'Hint'}
             icon={<HintIcon className="size-4" />}
             onClick={handleFreeHint}
           />
@@ -525,6 +550,8 @@ export default function Game() {
           setContrast(v);
           sounds.play('click');
         }}
+        hintsPurchased={hintsPurchased}
+        onActivateHints={handleActivateHints}
       />
     </div>
   );
