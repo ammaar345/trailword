@@ -1,4 +1,5 @@
 const STORAGE_KEY = 'trailword:v2';
+const PRACTICE_KEY = 'trailword:practice-v2';
 
 export interface GameStats {
   played: number;
@@ -55,4 +56,16 @@ export function recordLoss(stats: GameStats, day: string): GameStats {
     streak: 0,
     lastPlayed: day,
   };
+}
+
+export function loadPracticeStats(): GameStats {
+  try {
+    return { ...defaultStats(), ...JSON.parse(localStorage.getItem(PRACTICE_KEY) || '{}') };
+  } catch {
+    return defaultStats();
+  }
+}
+
+export function savePracticeStats(stats: GameStats): void {
+  localStorage.setItem(PRACTICE_KEY, JSON.stringify(stats));
 }

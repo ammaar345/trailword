@@ -7,34 +7,61 @@ import SettingsDialog, { type ContrastVariant } from './SettingsDialog';
 import { cn } from '@/lib/utils';
 import { isAllowedGuess } from '@/lib/swear';
 import { getDailyPuzzle, getRandomPuzzle, type DailyPuzzle } from '@/lib/daily';
-import { loadStats, saveStats, recordWin, recordLoss, type GameStats, defaultStats } from '@/lib/stats';
+import { loadStats, saveStats, recordWin, recordLoss, loadPracticeStats, savePracticeStats, type GameStats, defaultStats } from '@/lib/stats';
 import sounds from '@/lib/sounds';
 import { ShareIcon, HintIcon, SettingsGearIcon } from './icons';
 import { TrophyIcon } from './icons';
 
 const ROW_COUNT = 6;
 const COL_COUNT = 5;
+const BOARD_STATE_KEY = 'trailword:board';
+const GUMROAD_HINTS_URL = 'https://ammaar345.gumroad.com/l/trailword-hints';
 
 interface Row {
   letters: string[];
   statuses?: TileStatus[];
 }
 
+interface BoardState {
+  day: string;
+  mode: 'daily' | 'practice';
+  rows: Row[];
+  currentRow: number;
+  currentGuess: string;
+  gameOver: boolean;
+  solved: boolean;
+  freeHintUsed: boolean;
+  keyStatus: KeyStatus;
+}
+
+function loadBoardState(): BoardState | null {
+  try {
+    const saved = JSON.parse(localStorage.getItem(BOARD_STATE_KEY) || 'null');
+    if (!saved || saved.day !== getDailyPuzzle().day || saved.mode !== 'daily') return null;
+    return saved;
+  } catch {
+    return null;
+  }
+}
+
 export default function Game() {
+  const savedBoard = loadBoardState();
+
   const [puzzle, setPuzzle] = useState<DailyPuzzle>(getDailyPuzzle);
   const [mode, setMode] = useState<'daily' | 'practice'>('daily');
   const [rows, setRows] = useState<Row[]>(() =>
-    Array.from({ length: ROW_COUNT }, () => ({ letters: [] as string[] })),
+    savedBoard ? savedBoard.rows : Array.from({ length: ROW_COUNT }, () => ({ letters: [] as string[] })),
   );
-  const [currentGuess, setCurrentGuess] = useState<string>('');
-  const [currentRow, setCurrentRow] = useState<number>(0);
-  const [gameOver, setGameOver] = useState<boolean>(false);
-  const [solved, setSolved] = useState<boolean>(false);
+  const [currentGuess, setCurrentGuess] = useState<string>(savedBoard?.currentGuess ?? '');
+  const [currentRow, setCurrentRow] = useState<number>(savedBoard?.currentRow ?? 0);
+  const [gameOver, setGameOver] = useState<boolean>(savedBoard?.gameOver ?? false);
+  const [solved, setSolved] = useState<boolean>(savedBoard?.solved ?? false);
   const [message, setMessage] = useState<string>('');
   const [showStats, setShowStats] = useState<boolean>(false);
-  const [freeHintUsed, setFreeHintUsed] = useState<boolean>(false);
-  const [keyStatus, setKeyStatus] = useState<KeyStatus>({});
+  const [freeHintUsed, setFreeHintUsed] = useState<boolean>(savedBoard?.freeHintUsed ?? false);
+  const [keyStatus, setKeyStatus] = useState<KeyStatus>(savedBoard?.keyStatus ?? {});
   const [stats, setStats] = useState<GameStats>(loadStats);
+  const [practiceStats, setPracticeStats] = useState<GameStats>(loadPracticeStats);
   const [animating, setAnimating] = useState<boolean>(false);
   const [showSettings, setShowSettings] = useState<boolean>(false);
 
@@ -67,9 +94,26 @@ export default function Game() {
     localStorage.setItem('trailword:prefs', JSON.stringify({ soundEnabled, volume, contrast }));
   }, [soundEnabled, volume, contrast]);
 
+  // Persist board state to localStorage (daily mode only)
+  useEffect(() => {
+    if (mode !== 'daily') return;
+    const state: BoardState = {
+      day: puzzle.day,
+      mode,
+      rows,
+      currentRow,
+      currentGuess,
+      gameOver,
+      solved,
+      freeHintUsed,
+      keyStatus,
+    };
+    localStorage.setItem(BOARD_STATE_KEY, JSON.stringify(state));
+  }, [rows, currentRow, currentGuess, gameOver, solved, freeHintUsed, keyStatus, mode, puzzle.day]);
+
   const today = puzzle.day;
 
-  // Show stats if returning after solving
+  // Show stats if returning after solving today's daily
   useEffect(() => {
     if (stats.lastPlayed === today && (stats.wins > 0 || stats.losses > 0)) {
       setShowStats(true);
@@ -93,6 +137,10 @@ export default function Game() {
     setFreeHintUsed(false);
     setKeyStatus({});
     setAnimating(false);
+    // Clear saved board state for daily mode
+    if (newMode === 'daily') {
+      localStorage.removeItem(BOARD_STATE_KEY);
+    }
   }, []);
 
   const scoreGuess = useCallback(
@@ -138,7 +186,7 @@ export default function Game() {
       for (let i = 0; i < COL_COUNT; i++) {
         const letter = guess[i];
         if (!newKeyStatus[letter] || rank(result[i]) > rank(newKeyStatus[letter])) {
-          newKeyStatus[letter] = result[i];
+          newKeyStatus[letter] = result[i] as 'correct' | 'present' | 'absent';
         }
       }
       setKeyStatus(newKeyStatus);
@@ -175,9 +223,15 @@ export default function Game() {
         setGameOver(true);
         setMessage(`Solved in ${currentRow + 1}/6!`);
         if (!alreadyPlayedToday) {
-          const newStats = recordWin(stats, currentRow + 1);
-          setStats({ ...newStats, lastPlayed: today });
-          if (mode !== 'practice') saveStats({ ...newStats, lastPlayed: today });
+          if (mode === 'daily') {
+            const newStats = recordWin(stats, currentRow + 1);
+            setStats({ ...newStats, lastPlayed: today });
+            saveStats({ ...newStats, lastPlayed: today });
+          } else {
+            const newStats = recordWin(practiceStats, currentRow + 1);
+            setPracticeStats({ ...newStats, lastPlayed: today });
+            savePracticeStats({ ...newStats, lastPlayed: today });
+          }
         }
         setShowStats(true);
       } else if (currentRow >= ROW_COUNT - 1) {
@@ -185,9 +239,15 @@ export default function Game() {
         setGameOver(true);
         setMessage(`${mode === 'practice' ? 'Word' : "Today's word"} was ${puzzle.answer.toUpperCase()}`);
         if (!alreadyPlayedToday) {
-          const newStats = recordLoss(stats, today);
-          setStats({ ...newStats, lastPlayed: today });
-          if (mode !== 'practice') saveStats({ ...newStats, lastPlayed: today });
+          if (mode === 'daily') {
+            const newStats = recordLoss(stats, today);
+            setStats({ ...newStats, lastPlayed: today });
+            saveStats({ ...newStats, lastPlayed: today });
+          } else {
+            const newStats = recordLoss(practiceStats, today);
+            setPracticeStats({ ...newStats, lastPlayed: today });
+            savePracticeStats({ ...newStats, lastPlayed: today });
+          }
         }
         setShowStats(true);
       } else {
@@ -203,7 +263,7 @@ export default function Game() {
       }
       setAnimating(false);
     }, 500 + COL_COUNT * 100);
-  }, [gameOver, animating, currentGuess, puzzle, commitGuess, currentRow, stats, showMessage, today]);
+  }, [gameOver, animating, currentGuess, puzzle, commitGuess, currentRow, stats, practiceStats, showMessage, today]);
 
   const addLetter = useCallback(
     (letter: string) => {
@@ -267,6 +327,7 @@ export default function Game() {
       if (pressedKeyTimer.current) clearTimeout(pressedKeyTimer.current);
     };
   }, []);
+
   const displayRows = rows.map((row, idx) => {
     if (idx < currentRow) return row;
     if (idx === currentRow) {
@@ -286,7 +347,7 @@ export default function Game() {
     sounds.play('click');
     if (gameOver) return;
     if (freeHintUsed) {
-      window.open('https://gumroad.com/', '_blank');
+      window.open(GUMROAD_HINTS_URL, '_blank');
       return;
     }
     const pos = currentGuess.length < COL_COUNT ? currentGuess.length : 0;
@@ -325,6 +386,13 @@ export default function Game() {
     saveStats(fresh);
   };
 
+  const handleResetPracticeStats = () => {
+    sounds.play('click');
+    const fresh = defaultStats();
+    setPracticeStats(fresh);
+    savePracticeStats(fresh);
+  };
+
   const handleCloseStats = () => setShowStats(false);
 
   const handleOpenSettings = () => {
@@ -332,6 +400,8 @@ export default function Game() {
     setShowSettings(true);
   };
   const handleCloseSettings = () => setShowSettings(false);
+
+  const activeStats = mode === 'practice' ? practiceStats : stats;
 
   return (
     <div data-contrast={contrast}>
@@ -429,9 +499,10 @@ export default function Game() {
 
       {showStats && (
         <StatsDialog
-          stats={stats}
-          gameOver={gameOver || stats.played > 0}
-          onReset={handleResetStats}
+          stats={activeStats}
+          mode={mode}
+          gameOver={gameOver || activeStats.played > 0}
+          onReset={mode === 'practice' ? handleResetPracticeStats : handleResetStats}
           onClose={handleCloseStats}
         />
       )}

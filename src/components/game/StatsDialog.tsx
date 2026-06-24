@@ -3,12 +3,13 @@ import { cn } from '@/lib/utils';
 
 interface StatsDialogProps {
   stats: GameStats;
+  mode: 'daily' | 'practice';
   gameOver: boolean;
   onReset: () => void;
   onClose: () => void;
 }
 
-export default function StatsDialog({ stats, gameOver, onReset, onClose }: StatsDialogProps) {
+export default function StatsDialog({ stats, mode, gameOver, onReset, onClose }: StatsDialogProps) {
   if (!gameOver) return null;
 
   const winRate = stats.played ? Math.round((stats.wins / stats.played) * 100) : 0;
@@ -17,7 +18,7 @@ export default function StatsDialog({ stats, gameOver, onReset, onClose }: Stats
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
       <div className="w-full max-w-sm rounded-2xl border border-surface-200 dark:border-surface-800 bg-white dark:bg-surface-900 p-6 shadow-2xl">
-        <h2 className="mb-5 text-center text-lg font-display">Statistics</h2>
+        <h2 className="mb-5 text-center text-lg font-display">{mode === 'practice' ? 'Practice Stats' : 'Statistics'}</h2>
 
         <div className="mb-5 grid grid-cols-4 gap-3 text-center">
           <StatBox value={stats.wins} label="Solved" />

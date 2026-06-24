@@ -1,5 +1,4 @@
 import { cn } from '@/lib/utils';
-import sounds from '@/lib/sounds';
 
 type ContrastVariant = 'medium' | 'high' | 'soft' | 'dark' | 'colorblind';
 
