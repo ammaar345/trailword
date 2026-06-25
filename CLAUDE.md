@@ -213,40 +213,25 @@ Priority order: Gumroad hint packs → Carbon Ads → Premium supporter → Arch
 
 ## Pending
 
-### Carbon Ads — awaiting feedback from Carbon Ads team
-- Signed up, request sent, waiting for approval/snippet
+### Carbon Ads — awaiting snippet from Carbon Ads team
+- Signed up, request sent, sneaky will forward the snippet when it arrives
 - `CarbonAds` component in `src/components/ui/CarbonAds.tsx` with empty `CARBON_SCRIPT_SRC`
 - Once received, update `CARBON_SCRIPT_SRC` in that file
-- sneaky will send the snippet when it arrives
 
 ### Gumroad hints not fully wired
 - URL `https://ammaar345.gumroad.com/l/trailword-hints` in Game.tsx constant
 - 2 free hints (letter reveal → position reveal), then redirect to buy
-- Hints purchased state stored in `localStorage['trailword:hints-purchased']` (SETS on "I've purchased" button in Settings)
+- Hints purchased state stored in `localStorage['trailword:hints-purchased']` (manual "I've purchased" button in Settings)
 - Need to: create Gumroad product with `?checkout=true` return param
-- Currently: purchase verification is manual (user clicks "I've purchased" in Settings)
-
-### Carbon Ads not added
-- Need to sign up at carbonads.net, get snippet, add to GamePage.tsx
-- `CarbonAds` component exists at `src/components/ui/CarbonAds.tsx` but needs the actual ad code
 
 ## What Can Be Better
 
 ### Gameplay
-- **Word definitions + example sentences** shown after solving
 - **Daily puzzle archive** — $2 one-time to play past daily puzzles (Gumroad license key)
 - **Custom trail creation** — user picks 5-letter word, system generates category + hint
-- **Infinite practice mode** — no 6-guess limit, just free-form guessing
-- **Daily puzzle timer** — countdown showing when next puzzle drops
 
 ### UI/UX
-- **Colorblind+ mode** — add shapes/patterns on tiles in addition to color (diagonal stripes for correct, dots for present)
-- **Mobile swipe keyboard** — swipe up/down for backspace, left for enter
-- **Reduced motion setting** — disable flip animation for accessibility
-- **Font size options** in settings
 - **Sound pack selection** — different ASMR switch profiles (linear/tactile/clicky) choosable by user
-- **Share to social media** — proper embeds with card previews (Twitter/X, WhatsApp)
-- **Stats distribution bar graph** — improve visual layout of guess distribution
 - **Keyboard layout** — split keyboard rows more ergonomically for thumb typing on mobile
 
 ### Tech
