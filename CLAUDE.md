@@ -157,7 +157,67 @@ Priority order: Gumroad hint packs → Carbon Ads → Premium supporter → Arch
 - Backward-compatible with saved boards that used old `freeHintUsed` field
 - Unlimited hints after purchase
 
+## Session Fixes (June 26, 2026)
+
+### Answer display on loss
+- Added persistent answer card below board when `gameOver && !solved`
+- Shows answer, category, and definition in marshmallow card
+- No longer relies on flash message that auto-clears after 2s
+
+### Word definitions on game end
+- Fetches definition from Free Dictionary API (`api.dictionaryapi.dev`) after win or loss
+- Shows first definition and optional example sentence in marshmallow card
+- Silently fails if API unreachable — no user-facing error
+- Cached per game (no re-fetch on re-render)
+
+### Daily puzzle countdown timer
+- Shows "Next in Xh Ym" below hint in clue card (daily mode only)
+- Updates every 60 seconds
+- Calculated to next UTC midnight
+
+### Infinite practice mode
+- No 6-guess limit in practice mode — board grows as you guess
+- Win message shows "Solved!" without denominator
+- Uses `Math.max(rowCount, rows.length)` in GameBoard to render growing board
+- No stats recorded per guess (just win on solve)
+
+### Reduced motion setting
+- Toggle in Settings dialog, persisted in `trailword:prefs`
+- CSS rule disables all animations/transitions when active
+- Uses `data-reduced-motion="true"` on root game div
+
+### Stats distribution bar graph
+- Rounded bars (rounded-lg) with smooth width transition
+- Best bar gets marshmallow-pink gradient, zero-count bars show thin gray line
+- Count number has drop-shadow for readability
+
+### Social share meta tags
+- OG + Twitter card tags in `index.html` for proper link previews
+- Share text fixed: practice mode shows guess count without denominator ("Practice 5" vs "Practice X/6")
+
+### Font size options
+- S/M/L selector in Settings dialog, persisted in `trailword:prefs`
+- Sets `data-font-size` on `<html>` with CSS rule adjusting root font-size (14/16/18px)
+- All Tailwind rem-based text scales uniformly
+
+### Mobile swipe keyboard
+- Swipe left/up on keyboard area → BACKSPACE, swipe right/down → ENTER
+- 30px threshold prevents accidental triggers from taps
+- Uses touch events on keyboard container div
+
+### Colorblind+ tile patterns
+- When Colorblind contrast variant active, tiles show shape patterns:
+  - Correct: diagonal stripes via `repeating-linear-gradient`
+  - Present: dots via `radial-gradient` background
+- Uses `tile-status-{status}` class on Tile + `[data-contrast="colorblind"]` CSS
+
 ## Pending
+
+### Carbon Ads — awaiting feedback from Carbon Ads team
+- Signed up, request sent, waiting for approval/snippet
+- `CarbonAds` component in `src/components/ui/CarbonAds.tsx` with empty `CARBON_SCRIPT_SRC`
+- Once received, update `CARBON_SCRIPT_SRC` in that file
+- sneaky will send the snippet when it arrives
 
 ### Gumroad hints not fully wired
 - URL `https://ammaar345.gumroad.com/l/trailword-hints` in Game.tsx constant

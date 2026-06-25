@@ -686,3 +686,41 @@
 .dark .marshmallow-btn-blue:hover {
   background: linear-gradient(180deg, #304570 0%, #253860 100%);
 }
+
+/* Reduced motion */
+[data-reduced-motion="true"] *,
+[data-reduced-motion="true"] *::before,
+[data-reduced-motion="true"] *::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+}
+
+/* Font size scaling */
+html[data-font-size="sm"] { font-size: 14px; }
+html[data-font-size="lg"] { font-size: 18px; }
+
+/* Colorblind+ patterns on tiles */
+[data-contrast="colorblind"] .tile-status-correct::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    45deg,
+    transparent 0px,
+    transparent 3px,
+    rgba(0,0,0,0.12) 3px,
+    rgba(0,0,0,0.12) 6px
+  );
+  pointer-events: none;
+  z-index: 1;
+}
+[data-contrast="colorblind"] .tile-status-present::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle, rgba(0,0,0,0.15) 1.5px, transparent 1.5px);
+  background-size: 6px 6px;
+  pointer-events: none;
+  z-index: 1;
+}

@@ -1,7 +1,10 @@
+import { useRef } from 'react';
 import { cn } from '@/lib/utils';
 import { BackspaceIcon, EnterIcon } from './icons';
 
 export type KeyStatus = Record<string, 'correct' | 'present' | 'absent'>;
+
+const SWIPE_THRESHOLD = 30;
 
 interface GameKeyboardProps {
   keyStatus: KeyStatus;
@@ -16,8 +19,36 @@ const ROWS = [
 ];
 
 export default function GameKeyboard({ keyStatus, onKey, pressedKey }: GameKeyboardProps) {
+  const touchStart = useRef<{ x: number; y: number } | null>(null);
+
+  const onTouchStart = (e: React.TouchEvent) => {
+    touchStart.current = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+  };
+
+  const onTouchEnd = (e: React.TouchEvent) => {
+    if (!touchStart.current) return;
+    const dx = e.changedTouches[0].clientX - touchStart.current.x;
+    const dy = e.changedTouches[0].clientY - touchStart.current.y;
+    touchStart.current = null;
+
+    const absDx = Math.abs(dx);
+    const absDy = Math.abs(dy);
+    if (absDx < SWIPE_THRESHOLD && absDy < SWIPE_THRESHOLD) return;
+
+    if (absDx > absDy) {
+      // Horizontal swipe
+      onKey(dx > 0 ? 'ENTER' : 'BACKSPACE');
+    } else {
+      // Vertical swipe
+      onKey(dy > 0 ? 'ENTER' : 'BACKSPACE');
+    }
+  };
+
   return (
-    <div className="mx-auto flex max-w-[500px] flex-col gap-2">
+    <div className="mx-auto flex max-w-[500px] flex-col gap-2"
+      onTouchStart={onTouchStart}
+      onTouchEnd={onTouchEnd}
+    >
       {ROWS.map((row, idx) => (
         <div key={idx} className="flex justify-center gap-1.5 sm:gap-2">
           {row.map((key) => {

@@ -46,6 +46,7 @@ export default function Tile({ letter, status = 'empty', delay = 0, active = fal
         showTexture && 'tile-marshmallow-status animate-flip shadow-sm',
         active && isFilled && 'animate-[glow_1.2s_ease-in-out_infinite]',
         active && 'hover:scale-[1.04] hover:z-10',
+        status !== 'empty' && status !== 'filled' && `tile-status-${status}`,
       )}
       style={tileStyle}
     >

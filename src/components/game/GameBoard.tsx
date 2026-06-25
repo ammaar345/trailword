@@ -16,7 +16,7 @@ interface GameBoardProps {
 export default function GameBoard({ rows, rowCount, activeRow }: GameBoardProps) {
   return (
     <div className="mx-auto grid max-w-[300px] gap-1 sm:gap-1.5">
-      {Array.from({ length: rowCount }).map((_, rowIdx) => {
+      {Array.from({ length: Math.max(rowCount, rows.length) }).map((_, rowIdx) => {
         const row = rows[rowIdx];
         return (
           <div key={rowIdx} className="grid grid-cols-5 gap-1 sm:gap-1.5">

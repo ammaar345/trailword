@@ -13,7 +13,7 @@ export default function StatsDialog({ stats, mode, gameOver, onReset, onClose }:
   if (!gameOver) return null;
 
   const winRate = stats.played ? Math.round((stats.wins / stats.played) * 100) : 0;
-  const maxCount = Math.max(...stats.distribution, 1);
+  const maxDist = Math.max(...stats.distribution, 1);
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
@@ -29,22 +29,30 @@ export default function StatsDialog({ stats, mode, gameOver, onReset, onClose }:
 
         <h3 className="mb-3 text-xs tracking-widest uppercase text-surface-400 font-display">Guess distribution</h3>
         <div className="mb-5 space-y-1.5">
-          {stats.distribution.map((count, i) => (
-            <div key={i} className="flex items-center gap-2 text-sm">
-              <span className="w-4 text-right text-surface-400">{i + 1}</span>
-              <div className="flex-1 overflow-hidden rounded-md">
-                <div
-                  className={cn(
-                    'flex h-6 items-center justify-end px-2 text-xs font-bold rounded-md transition-all',
-                    i === 0 ? 'bg-neutral-900 dark:bg-neutral-100 text-white dark:text-neutral-900' : 'bg-surface-200 dark:bg-surface-800 text-surface-700 dark:text-surface-300',
-                  )}
-                  style={{ width: `${Math.max(4, (count / maxCount) * 100)}%` }}
-                >
-                  {count || ''}
+          {stats.distribution.map((count, i) => {
+            const pct = maxDist > 0 ? (count / maxDist) * 100 : 0;
+            const isBest = maxDist > 0 && count === maxDist;
+            return (
+              <div key={i} className="flex items-center gap-2 text-sm">
+                <span className="w-4 text-right text-surface-400 font-medium">{i + 1}</span>
+                <div className="flex-1 overflow-hidden rounded-lg">
+                  <div
+                    className={cn(
+                      'flex h-7 items-center justify-end px-2.5 text-xs font-bold rounded-lg transition-all duration-500',
+                      count > 0
+                        ? isBest
+                          ? 'bg-gradient-to-r from-[#f7d3d3] to-[#ecc0c0] dark:from-[#c4a2a2] dark:to-[#b08e8e] text-surface-800 dark:text-white'
+                          : 'bg-surface-200 dark:bg-surface-800 text-surface-700 dark:text-surface-300'
+                        : 'bg-surface-100/50 dark:bg-surface-800/30 text-surface-300 dark:text-surface-600',
+                    )}
+                    style={{ width: `${count > 0 ? Math.max(12, pct) : 4}%` }}
+                  >
+                    {count > 0 && <span className="drop-shadow-sm">{count}</span>}
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
 
         <div className="flex gap-2">

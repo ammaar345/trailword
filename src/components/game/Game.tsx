@@ -3,7 +3,7 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import GameBoard, { type TileStatus } from './GameBoard';
 import GameKeyboard, { type KeyStatus } from './GameKeyboard';
 import StatsDialog from './StatsDialog';
-import SettingsDialog, { type ContrastVariant } from './SettingsDialog';
+import SettingsDialog, { type ContrastVariant, type FontSize } from './SettingsDialog';
 import { cn } from '@/lib/utils';
 import { isAllowedGuess } from '@/lib/swear';
 import { getDailyPuzzle, getRandomPuzzle, type DailyPuzzle } from '@/lib/daily';
@@ -73,6 +73,26 @@ export default function Game() {
   const [practiceStats, setPracticeStats] = useState<GameStats>(loadPracticeStats);
   const [animating, setAnimating] = useState<boolean>(false);
   const [showSettings, setShowSettings] = useState<boolean>(false);
+  const [definition, setDefinition] = useState<{ word: string; definition: string; example?: string } | null>(null);
+  const [definitionLoading, setDefinitionLoading] = useState<boolean>(false);
+  const [timeUntilNext, setTimeUntilNext] = useState<string>('');
+
+  // Daily puzzle countdown — update every 60s
+  useEffect(() => {
+    if (mode !== 'daily') { setTimeUntilNext(''); return; }
+    const update = () => {
+      const now = Date.now();
+      const nextMidnight = Date.UTC(new Date().getFullYear(), new Date().getMonth(), new Date().getDate() + 1);
+      const diff = nextMidnight - now;
+      if (diff <= 0) { setTimeUntilNext(''); return; }
+      const h = Math.floor(diff / 3_600_000);
+      const m = Math.floor((diff % 3_600_000) / 60_000);
+      setTimeUntilNext(`Next in ${h}h ${m}m`);
+    };
+    update();
+    const id = setInterval(update, 60_000);
+    return () => clearInterval(id);
+  }, [mode]);
 
   // Physical key sync
   const [pressedKey, setPressedKey] = useState<string>('');
@@ -88,6 +108,12 @@ export default function Game() {
   const [contrast, setContrast] = useState<ContrastVariant>(() => {
     try { const p = JSON.parse(localStorage.getItem('trailword:prefs') || '{}'); return p.contrast ?? 'medium'; } catch { return 'medium'; }
   });
+  const [reducedMotion, setReducedMotion] = useState<boolean>(() => {
+    try { const p = JSON.parse(localStorage.getItem('trailword:prefs') || '{}'); return p.reducedMotion ?? false; } catch { return false; }
+  });
+  const [fontSize, setFontSize] = useState<'sm' | 'md' | 'lg'>(() => {
+    try { const p = JSON.parse(localStorage.getItem('trailword:prefs') || '{}'); return p.fontSize ?? 'md'; } catch { return 'md'; }
+  });
 
   // Sync sound settings
   const soundEnabledRef = useRef(soundEnabled);
@@ -100,8 +126,15 @@ export default function Game() {
 
   // Persist preferences to localStorage
   useEffect(() => {
-    localStorage.setItem('trailword:prefs', JSON.stringify({ soundEnabled, volume, contrast }));
-  }, [soundEnabled, volume, contrast]);
+    localStorage.setItem('trailword:prefs', JSON.stringify({ soundEnabled, volume, contrast, reducedMotion, fontSize }));
+  }, [soundEnabled, volume, contrast, reducedMotion, fontSize]);
+
+  // Sync font-size to html element
+  useEffect(() => {
+    const html = document.documentElement;
+    if (fontSize === 'md') html.removeAttribute('data-font-size');
+    else html.dataset.fontSize = fontSize;
+  }, [fontSize]);
 
   // Persist board state to localStorage (daily mode only)
   useEffect(() => {
@@ -120,6 +153,13 @@ export default function Game() {
     localStorage.setItem(BOARD_STATE_KEY, JSON.stringify(state));
   }, [rows, currentRow, currentGuess, gameOver, solved, hintLevel, keyStatus, mode, puzzle.day]);
 
+  // Fetch word definition on game end
+  useEffect(() => {
+    if (gameOver && !definition && !definitionLoading) {
+      fetchDefinition(puzzle.answer);
+    }
+  }, [gameOver, puzzle.answer, definition, definitionLoading, fetchDefinition]);
+
   const today = puzzle.day;
 
   // Show stats if returning after solving today's daily
@@ -134,6 +174,25 @@ export default function Game() {
     setTimeout(() => setMessage(''), 2000);
   }, []);
 
+  const fetchDefinition = useCallback(async (word: string) => {
+    setDefinitionLoading(true);
+    try {
+      const res = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${encodeURIComponent(word)}`);
+      if (res.ok) {
+        const data = await res.json();
+        const entry = data[0];
+        if (entry?.meanings?.length) {
+          const def = entry.meanings[0].definitions[0];
+          setDefinition({ word: entry.word, definition: def.definition, example: def.example });
+        }
+      }
+    } catch {
+      // silent — definition is a nice-to-have
+    } finally {
+      setDefinitionLoading(false);
+    }
+  }, []);
+
   const startNewGame = useCallback((newMode: 'daily' | 'practice') => {
     setPuzzle(newMode === 'practice' ? getRandomPuzzle() : getDailyPuzzle());
     setMode(newMode);
@@ -145,6 +204,9 @@ export default function Game() {
     setMessage('');
     setHintLevel(0);
     setKeyStatus({});
+    setDefinition(null);
+    setDefinitionLoading(false);
+    setTimeUntilNext('');
     setAnimating(false);
     // Clear saved board state for daily mode
     if (newMode === 'daily') {
@@ -230,7 +292,7 @@ export default function Game() {
         sounds.play('win');
         setSolved(true);
         setGameOver(true);
-        setMessage(`Solved in ${currentRow + 1}/6!`);
+        setMessage(mode === 'practice' ? 'Solved!' : `Solved in ${currentRow + 1}/6!`);
         if (!alreadyPlayedToday) {
           if (mode === 'daily') {
             const newStats = recordWin(stats, currentRow + 1);
@@ -244,21 +306,22 @@ export default function Game() {
         }
         setShowStats(true);
       } else if (currentRow >= ROW_COUNT - 1) {
-        sounds.play('lose');
-        setGameOver(true);
-        setMessage(`${mode === 'practice' ? 'Word' : "Today's word"} was ${puzzle.answer.toUpperCase()}`);
-        if (!alreadyPlayedToday) {
-          if (mode === 'daily') {
+        if (mode === 'practice') {
+          // Infinite practice — no lose limit, grow the board
+          sounds.play(mode === 'practice' ? 'click' : 'lose');
+          setRows(prev => [...prev, { letters: [] as string[] }]);
+          setCurrentRow(r => r + 1);
+        } else {
+          sounds.play('lose');
+          setGameOver(true);
+          setMessage(`Today's word was ${puzzle.answer.toUpperCase()}`);
+          if (!alreadyPlayedToday) {
             const newStats = recordLoss(stats, today);
             setStats({ ...newStats, lastPlayed: today });
             saveStats({ ...newStats, lastPlayed: today });
-          } else {
-            const newStats = recordLoss(practiceStats, today);
-            setPracticeStats({ ...newStats, lastPlayed: today });
-            savePracticeStats({ ...newStats, lastPlayed: today });
           }
+          setShowStats(true);
         }
-        setShowStats(true);
       } else {
         const allCorrect = result.every((s) => s === 'correct');
         if (allCorrect) {
@@ -413,7 +476,8 @@ export default function Game() {
       )
       .join('\n');
     const label = mode === 'practice' ? 'Practice' : `#${puzzle.dayIndex}`;
-    const text = `TrailWord ${label} ${solved ? currentRow + 1 : 'X'}/6\n${grid}\n${puzzle.category}`;
+    const solvedText = solved ? (mode === 'practice' ? `${currentRow + 1}` : `${currentRow + 1}/6`) : (mode === 'practice' ? '—' : 'X');
+    const text = `TrailWord ${label} ${solvedText}\n${grid}\n${puzzle.category}`;
     sounds.play('click');
     if (navigator.share) {
       navigator.share({ text }).catch(() => {});
@@ -454,7 +518,7 @@ export default function Game() {
   const activeStats = mode === 'practice' ? practiceStats : stats;
 
   return (
-    <div data-contrast={contrast}>
+    <div data-contrast={contrast} data-reduced-motion={reducedMotion ? 'true' : undefined}>
       <div className="mx-auto flex w-full max-w-lg flex-col items-center gap-3 px-4 pb-8">
         {/* Clue hero */}
         <div className="marshmallow-card w-full rounded-2xl p-4">
@@ -478,6 +542,11 @@ export default function Game() {
             {puzzle.category}
           </p>
           <p className="mt-0.5 text-sm text-surface-400">{puzzle.hint}</p>
+          {mode === 'daily' && timeUntilNext && (
+            <p className="mt-1.5 text-[10px] text-surface-400 dark:text-surface-500 font-sans tracking-normal">
+              {timeUntilNext}
+            </p>
+          )}
         </div>
 
         {/* Board */}
@@ -492,6 +561,44 @@ export default function Game() {
         )}>
           {message}
         </div>
+
+        {/* Persistent answer on loss */}
+        {gameOver && !solved && (
+          <div className="marshmallow-card w-full rounded-2xl p-4 text-center">
+            <p className="text-[10px] tracking-widest text-surface-500 dark:text-surface-400 uppercase font-display">
+              Answer
+            </p>
+            <p className="mt-0.5 text-xl font-display font-bold tracking-wide text-surface-700 dark:text-surface-300">
+              {puzzle.answer.toUpperCase()}
+            </p>
+            <p className="mt-0.5 text-xs text-surface-400 font-sans italic">
+              {puzzle.category}
+            </p>
+          </div>
+        )}
+
+        {/* Word definition on game end */}
+        {gameOver && definition && (
+          <div className="marshmallow-card w-full rounded-2xl p-4">
+            <span className="text-[10px] tracking-widest text-surface-500 dark:text-surface-400 uppercase font-display">
+              Definition
+            </span>
+            <p className="mt-1 text-sm text-surface-700 dark:text-surface-300 leading-relaxed font-sans">
+              {definition.definition.charAt(0).toUpperCase() + definition.definition.slice(1)}
+            </p>
+            {definition.example && (
+              <p className="mt-1.5 text-sm text-surface-500 italic leading-relaxed font-sans">
+                &ldquo;{definition.example}&rdquo;
+              </p>
+            )}
+          </div>
+        )}
+
+        {definitionLoading && gameOver && !definition && (
+          <div className="h-6 text-center">
+            <span className="text-xs text-surface-400">Loading definition...</span>
+          </div>
+        )}
 
         {/* Color Legend */}
         {!gameOver && (
@@ -578,6 +685,16 @@ export default function Game() {
         contrast={contrast}
         onContrastChange={(v) => {
           setContrast(v);
+          sounds.play('click');
+        }}
+        reducedMotion={reducedMotion}
+        onReducedMotionToggle={(v) => {
+          setReducedMotion(v);
+          sounds.play('click');
+        }}
+        fontSize={fontSize}
+        onFontSizeChange={(v) => {
+          setFontSize(v);
           sounds.play('click');
         }}
         hintsPurchased={hintsPurchased}

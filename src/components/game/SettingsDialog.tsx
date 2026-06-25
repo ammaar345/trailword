@@ -1,6 +1,7 @@
 import { cn } from '@/lib/utils';
 
 type ContrastVariant = 'medium' | 'high' | 'soft' | 'dark' | 'colorblind';
+type FontSize = 'sm' | 'md' | 'lg';
 
 interface SettingsDialogProps {
   open: boolean;
@@ -11,6 +12,10 @@ interface SettingsDialogProps {
   onVolumeChange: (v: number) => void;
   contrast: ContrastVariant;
   onContrastChange: (v: ContrastVariant) => void;
+  reducedMotion: boolean;
+  onReducedMotionToggle: (v: boolean) => void;
+  fontSize: FontSize;
+  onFontSizeChange: (v: FontSize) => void;
   hintsPurchased?: boolean;
   onActivateHints?: () => void;
 }
@@ -23,7 +28,13 @@ const CONTRAST_OPTIONS: { value: ContrastVariant; label: string; colors: [string
   { value: 'colorblind', label: 'Colorblind', colors: ['#3b82f6', '#f59e0b', '#d4d4d4'] },
 ];
 
-export type { ContrastVariant };
+const FONT_SIZES: { value: FontSize; label: string }[] = [
+  { value: 'sm', label: 'S' },
+  { value: 'md', label: 'M' },
+  { value: 'lg', label: 'L' },
+];
+
+export type { ContrastVariant, FontSize };
 
 export default function SettingsDialog({
   open,
@@ -34,6 +45,10 @@ export default function SettingsDialog({
   onVolumeChange,
   contrast,
   onContrastChange,
+  reducedMotion,
+  onReducedMotionToggle,
+  fontSize,
+  onFontSizeChange,
   hintsPurchased = false,
   onActivateHints,
 }: SettingsDialogProps) {
@@ -111,6 +126,50 @@ export default function SettingsDialog({
               </button>
             ))}
           </div>
+        </div>
+
+        {/* Font size */}
+        <div className="mb-5">
+          <span className="mb-2 block text-sm font-display">Font size</span>
+          <div className="flex gap-2">
+            {FONT_SIZES.map((opt) => (
+              <button
+                key={opt.value}
+                onClick={() => onFontSizeChange(opt.value)}
+                className={cn(
+                  'flex-1 rounded-xl border-2 py-2 text-sm font-display transition',
+                  fontSize === opt.value
+                    ? 'border-surface-900 dark:border-surface-100 bg-surface-100 dark:bg-surface-800'
+                    : 'border-transparent hover:bg-surface-100 dark:hover:bg-surface-800',
+                )}
+              >
+                {opt.label}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Reduced motion */}
+        <div className="mb-5">
+          <div className="flex items-center justify-between">
+            <span className="text-sm font-display">Reduced motion</span>
+            <button
+              onClick={() => onReducedMotionToggle(!reducedMotion)}
+              className={cn(
+                'relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors',
+                reducedMotion ? 'bg-surface-900 dark:bg-surface-100' : 'bg-surface-300 dark:bg-surface-700',
+              )}
+              aria-label="Toggle reduced motion"
+            >
+              <span
+                className={cn(
+                  'pointer-events-none inline-block h-4 w-4 rounded-full bg-white dark:bg-surface-900 shadow transition-transform',
+                  reducedMotion ? 'translate-x-4' : 'translate-x-0',
+                )}
+              />
+            </button>
+          </div>
+          <p className="mt-1 text-[11px] text-surface-400 font-sans">Disable flip animations and transitions</p>
         </div>
 
         {/* Hint packs */}
