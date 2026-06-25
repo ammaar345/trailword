@@ -1,4 +1,5 @@
 import { cn } from '@/lib/utils';
+import { type SwitchProfile } from '@/lib/sounds';
 
 type ContrastVariant = 'medium' | 'high' | 'soft' | 'dark' | 'colorblind';
 type FontSize = 'sm' | 'md' | 'lg';
@@ -18,6 +19,8 @@ interface SettingsDialogProps {
   onFontSizeChange: (v: FontSize) => void;
   hintsPurchased?: boolean;
   onActivateHints?: () => void;
+  switchProfile?: SwitchProfile;
+  onSwitchProfileChange?: (v: SwitchProfile) => void;
 }
 
 const CONTRAST_OPTIONS: { value: ContrastVariant; label: string; colors: [string, string, string] }[] = [
@@ -51,6 +54,8 @@ export default function SettingsDialog({
   onFontSizeChange,
   hintsPurchased = false,
   onActivateHints,
+  switchProfile = 'tactile',
+  onSwitchProfileChange,
 }: SettingsDialogProps) {
   if (!open) return null;
 
@@ -93,6 +98,28 @@ export default function SettingsDialog({
                 aria-label="Volume"
               />
               <span className="w-8 text-right text-xs text-surface-400">{Math.round(volume * 100)}</span>
+            </div>
+          )}
+
+          {soundEnabled && onSwitchProfileChange && (
+            <div className="mt-3 pl-1">
+              <span className="text-xs text-surface-400">Key sound</span>
+              <div className="mt-1 flex gap-1.5">
+                {(['linear', 'tactile', 'clicky'] as const).map((p) => (
+                  <button
+                    key={p}
+                    onClick={() => onSwitchProfileChange(p)}
+                    className={cn(
+                      'flex-1 rounded-lg border py-1 text-[11px] font-medium font-display capitalize transition',
+                      switchProfile === p
+                        ? 'border-surface-900 dark:border-surface-100 bg-surface-100 dark:bg-surface-800'
+                        : 'border-transparent hover:bg-surface-100 dark:hover:bg-surface-800',
+                    )}
+                  >
+                    {p}
+                  </button>
+                ))}
+              </div>
             </div>
           )}
         </div>

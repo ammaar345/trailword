@@ -4,18 +4,22 @@
 
 export type SoundType = 'key' | 'backspace' | 'enter' | 'correct' | 'wrong' | 'win' | 'lose' | 'click';
 
-type SwitchProfile = 'linear' | 'tactile' | 'clicky';
+export type SwitchProfile = 'linear' | 'tactile' | 'clicky';
 
 class SoundManager {
   private ctx: AudioContext | null = null;
   private _enabled = true;
   private _volume = 0.35;
+  private _switchProfile: SwitchProfile = 'tactile';
 
   get enabled() { return this._enabled; }
   set enabled(v: boolean) { this._enabled = v; }
 
   get volume() { return this._volume; }
   set volume(v: number) { this._volume = Math.max(0, Math.min(1, v)); }
+
+  get switchProfile() { return this._switchProfile; }
+  set switchProfile(v: SwitchProfile) { this._switchProfile = v; }
 
   private getCtx(): AudioContext {
     if (!this.ctx) this.ctx = new AudioContext();
@@ -27,7 +31,7 @@ class SoundManager {
     if (!this._enabled) return;
     try {
       switch (type) {
-        case 'key': this.switchPress('tactile'); break;
+        case 'key': this.switchPress(this._switchProfile); break;
         case 'backspace': this.switchPress('linear'); break;
         case 'enter': this.switchPress('clicky'); break;
         case 'correct': this.correctSound(); break;

@@ -50,7 +50,7 @@ export default function GameKeyboard({ keyStatus, onKey, pressedKey }: GameKeybo
       onTouchEnd={onTouchEnd}
     >
       {ROWS.map((row, idx) => (
-        <div key={idx} className="flex justify-center gap-1.5 sm:gap-2">
+        <div key={idx} className={cn("flex justify-center gap-1.5 sm:gap-2", idx === 1 && "pl-4 sm:pl-5", idx === 2 && "pl-8 sm:pl-10")}>
           {row.map((key) => {
             const isWide = key === 'ENTER' || key === 'BACKSPACE';
             const status = keyStatus[key];

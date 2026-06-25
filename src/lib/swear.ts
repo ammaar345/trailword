@@ -5,7 +5,7 @@ import { VALID_GUESSES } from './words';
 
 const SWEAR_WORDS = new Set([
   'shit', 'fuck', 'damn', 'piss', 'cunt', 'dick', 'prick', 'whore',
-  'arse', 'bitch', 'slut', 'twat',
+  'arse', 'slut', 'twat',
   'nigga', 'niger',
 ]);
 

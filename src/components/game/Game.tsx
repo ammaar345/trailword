@@ -1,14 +1,16 @@
 'use client';
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback, useRef, lazy, Suspense } from 'react';
 import GameBoard, { type TileStatus } from './GameBoard';
 import GameKeyboard, { type KeyStatus } from './GameKeyboard';
 import StatsDialog from './StatsDialog';
-import SettingsDialog, { type ContrastVariant, type FontSize } from './SettingsDialog';
+import { type ContrastVariant } from './SettingsDialog';
+const SettingsDialog = lazy(() => import('./SettingsDialog'));
 import { cn } from '@/lib/utils';
 import { isAllowedGuess } from '@/lib/swear';
 import { getDailyPuzzle, getRandomPuzzle, type DailyPuzzle } from '@/lib/daily';
+import { buildCustomPuzzle } from '@/lib/custom-trail';
 import { loadStats, saveStats, recordWin, recordLoss, loadPracticeStats, savePracticeStats, type GameStats, defaultStats } from '@/lib/stats';
-import sounds from '@/lib/sounds';
+import sounds, { type SwitchProfile } from '@/lib/sounds';
 import { ShareIcon, HintIcon, SettingsGearIcon } from './icons';
 import { TrophyIcon } from './icons';
 
@@ -114,6 +116,15 @@ export default function Game() {
   const [fontSize, setFontSize] = useState<'sm' | 'md' | 'lg'>(() => {
     try { const p = JSON.parse(localStorage.getItem('trailword:prefs') || '{}'); return p.fontSize ?? 'md'; } catch { return 'md'; }
   });
+  const [switchProfile, setSwitchProfile] = useState<SwitchProfile>(() => {
+    try { const p = JSON.parse(localStorage.getItem('trailword:prefs') || '{}'); return p.switchProfile ?? 'tactile'; } catch { return 'tactile'; }
+  });
+
+  // Custom trail state
+  const [showNewGameMenu, setShowNewGameMenu] = useState<boolean>(false);
+  const [customWord, setCustomWord] = useState<string>('');
+  const [customError, setCustomError] = useState<string | null>(null);
+  const [customLoading, setCustomLoading] = useState<boolean>(false);
 
   // Sync sound settings
   const soundEnabledRef = useRef(soundEnabled);
@@ -123,11 +134,12 @@ export default function Game() {
 
   useEffect(() => { sounds.enabled = soundEnabled; }, [soundEnabled]);
   useEffect(() => { sounds.volume = volume; }, [volume]);
+  useEffect(() => { sounds.switchProfile = switchProfile; }, [switchProfile]);
 
   // Persist preferences to localStorage
   useEffect(() => {
-    localStorage.setItem('trailword:prefs', JSON.stringify({ soundEnabled, volume, contrast, reducedMotion, fontSize }));
-  }, [soundEnabled, volume, contrast, reducedMotion, fontSize]);
+    localStorage.setItem('trailword:prefs', JSON.stringify({ soundEnabled, volume, contrast, reducedMotion, fontSize, switchProfile }));
+  }, [soundEnabled, volume, contrast, reducedMotion, fontSize, switchProfile]);
 
   // Sync font-size to html element
   useEffect(() => {
@@ -153,6 +165,25 @@ export default function Game() {
     localStorage.setItem(BOARD_STATE_KEY, JSON.stringify(state));
   }, [rows, currentRow, currentGuess, gameOver, solved, hintLevel, keyStatus, mode, puzzle.day]);
 
+  const fetchDefinition = useCallback(async (word: string) => {
+    setDefinitionLoading(true);
+    try {
+      const res = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${encodeURIComponent(word)}`);
+      if (res.ok) {
+        const data = await res.json();
+        const entry = data[0];
+        if (entry?.meanings?.length) {
+          const def = entry.meanings[0].definitions[0];
+          setDefinition({ word: entry.word, definition: def.definition, example: def.example });
+        }
+      }
+    } catch {
+      // silent — definition is a nice-to-have
+    } finally {
+      setDefinitionLoading(false);
+    }
+  }, []);
+
   // Fetch word definition on game end
   useEffect(() => {
     if (gameOver && !definition && !definitionLoading) {
@@ -174,25 +205,6 @@ export default function Game() {
     setTimeout(() => setMessage(''), 2000);
   }, []);
 
-  const fetchDefinition = useCallback(async (word: string) => {
-    setDefinitionLoading(true);
-    try {
-      const res = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${encodeURIComponent(word)}`);
-      if (res.ok) {
-        const data = await res.json();
-        const entry = data[0];
-        if (entry?.meanings?.length) {
-          const def = entry.meanings[0].definitions[0];
-          setDefinition({ word: entry.word, definition: def.definition, example: def.example });
-        }
-      }
-    } catch {
-      // silent — definition is a nice-to-have
-    } finally {
-      setDefinitionLoading(false);
-    }
-  }, []);
-
   const startNewGame = useCallback((newMode: 'daily' | 'practice') => {
     setPuzzle(newMode === 'practice' ? getRandomPuzzle() : getDailyPuzzle());
     setMode(newMode);
@@ -211,6 +223,43 @@ export default function Game() {
     // Clear saved board state for daily mode
     if (newMode === 'daily') {
       localStorage.removeItem(BOARD_STATE_KEY);
+    }
+  }, []);
+
+  const startCustomGame = useCallback(async (word: string) => {
+    const trimmed = word.trim().toLowerCase();
+    if (trimmed.length !== 5) {
+      setCustomError('Enter a 5-letter word');
+      return;
+    }
+    if (!isAllowedGuess(trimmed)) {
+      setCustomError('Not a valid English word');
+      return;
+    }
+    setCustomLoading(true);
+    setCustomError(null);
+    try {
+      const customPuzzle = await buildCustomPuzzle(trimmed);
+      setPuzzle(customPuzzle);
+      setMode('practice');
+      setRows(Array.from({ length: ROW_COUNT }, () => ({ letters: [] as string[] })));
+      setCurrentGuess('');
+      setCurrentRow(0);
+      setGameOver(false);
+      setSolved(false);
+      setMessage('');
+      setHintLevel(0);
+      setKeyStatus({});
+      setDefinition(null);
+      setDefinitionLoading(false);
+      setTimeUntilNext('');
+      setAnimating(false);
+      setShowNewGameMenu(false);
+      setCustomWord('');
+    } catch {
+      setCustomError('Something went wrong. Try again.');
+    } finally {
+      setCustomLoading(false);
     }
   }, []);
 
@@ -636,17 +685,13 @@ export default function Game() {
             onClick={() => { sounds.play('click'); setShowStats(true); }}
           />
           <ActionButton variant="blue"
-            label={mode === 'practice' ? 'Daily' : 'Practice'}
+            label="New"
             icon={
               <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="size-4">
-                {mode === 'practice' ? (
-                  <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                ) : (
-                  <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2z" fill="currentColor"/>
-                )}
+                <path d="M12 5v14M5 12h14" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
               </svg>
             }
-            onClick={() => { sounds.play('click'); startNewGame(mode === 'practice' ? 'daily' : 'practice'); }}
+            onClick={() => { sounds.play('click'); setShowNewGameMenu(v => !v); }}
           />
           <ActionButton variant="blue"
             label="Settings"
@@ -654,6 +699,59 @@ export default function Game() {
             onClick={handleOpenSettings}
           />
         </div>
+
+        {/* New Game Menu */}
+        {showNewGameMenu && (
+          <div className="marshmallow-card w-full rounded-2xl p-3">
+            <div className="flex gap-2">
+              <button
+                onClick={() => { sounds.play('click'); setShowNewGameMenu(false); startNewGame('daily'); }}
+                className="flex-1 rounded-xl border-2 border-transparent bg-surface-100 dark:bg-surface-800 p-2.5 text-center hover:border-surface-400 dark:hover:border-surface-500 transition"
+              >
+                <span className="block text-sm font-display text-surface-700 dark:text-surface-300">Daily</span>
+                <span className="block text-[10px] text-surface-400 mt-0.5">Today's puzzle</span>
+              </button>
+              <button
+                onClick={() => { sounds.play('click'); setShowNewGameMenu(false); startNewGame('practice'); }}
+                className="flex-1 rounded-xl border-2 border-transparent bg-surface-100 dark:bg-surface-800 p-2.5 text-center hover:border-surface-400 dark:hover:border-surface-500 transition"
+              >
+                <span className="block text-sm font-display text-surface-700 dark:text-surface-300">Practice</span>
+                <span className="block text-[10px] text-surface-400 mt-0.5">Random word</span>
+              </button>
+              <button
+                onClick={() => { sounds.play('click'); setCustomWord(''); setCustomError(null); setShowNewGameMenu(false); }}
+                className="flex-1 rounded-xl border-2 border-transparent bg-surface-100 dark:bg-surface-800 p-2.5 text-center hover:border-surface-400 dark:hover:border-surface-500 transition"
+              >
+                <span className="block text-sm font-display text-surface-700 dark:text-surface-300">Custom</span>
+                <span className="block text-[10px] text-surface-400 mt-0.5">Your own word</span>
+              </button>
+            </div>
+            {/* Custom input */}
+            <div className="mt-3 flex items-center gap-2">
+              <input
+                type="text"
+                maxLength={5}
+                placeholder="5-letter word"
+                value={customWord}
+                onChange={(e) => { setCustomWord(e.target.value.toUpperCase().slice(0, 5)); setCustomError(null); }}
+                onKeyDown={(e) => { if (e.key === 'Enter') startCustomGame(customWord); }}
+                className="flex-1 rounded-xl border border-surface-300 dark:border-surface-700 bg-white dark:bg-surface-900 px-3 py-2 text-center text-lg font-display uppercase tracking-widest text-surface-700 dark:text-surface-300 placeholder:text-surface-300 dark:placeholder:text-surface-600 outline-none focus:border-surface-500 dark:focus:border-surface-400 transition disabled:opacity-40"
+                disabled={customLoading}
+                autoFocus
+              />
+              <button
+                onClick={() => startCustomGame(customWord)}
+                disabled={customLoading || customWord.length !== 5}
+                className="rounded-xl border-2 border-surface-900 dark:border-surface-100 bg-surface-900 dark:bg-surface-100 px-4 py-2 text-sm font-display text-white dark:text-surface-900 hover:opacity-85 transition disabled:opacity-30 disabled:cursor-not-allowed whitespace-nowrap"
+              >
+                {customLoading ? '...' : 'Start'}
+              </button>
+            </div>
+            {customError && (
+              <p className="mt-1.5 text-xs text-red-500 font-sans text-center">{customError}</p>
+            )}
+          </div>
+        )}
 
         {/* Keyboard */}
         <GameKeyboard keyStatus={keyStatus} onKey={handleKey} pressedKey={pressedKey} />
@@ -669,7 +767,8 @@ export default function Game() {
         />
       )}
 
-      <SettingsDialog
+      <Suspense fallback={null}>
+        <SettingsDialog
         open={showSettings}
         onClose={handleCloseSettings}
         soundEnabled={soundEnabled}
@@ -699,7 +798,13 @@ export default function Game() {
         }}
         hintsPurchased={hintsPurchased}
         onActivateHints={handleActivateHints}
+        switchProfile={switchProfile}
+        onSwitchProfileChange={(v) => {
+          setSwitchProfile(v);
+          sounds.play('click');
+        }}
       />
+      </Suspense>
     </div>
   );
 }

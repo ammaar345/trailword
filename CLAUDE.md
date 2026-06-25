@@ -1,5 +1,10 @@
 # TrailWord — Development Notes
 
+## Session Start Reminder
+- Start dev server: `npm run dev` in project root
+- Test pending features before coding anything new
+- Last session ended with custom trail creation, sound pack, keyboard stagger, and build optimization pending test
+
 ## Visual Design
 
 ### Marshmallow Palette (Warm Pink Family)
@@ -157,7 +162,34 @@ Priority order: Gumroad hint packs → Carbon Ads → Premium supporter → Arch
 - Backward-compatible with saved boards that used old `freeHintUsed` field
 - Unlimited hints after purchase
 
+## Session Fixes (June 25, 2026)
+
+### Custom trail creation
+- `src/lib/custom-trail.ts` — `buildCustomPuzzle()` validates word, looks up in WORDS, falls back to dictionary API for category + hint
+- "New" button replaces mode-toggle in action bar, opens card with Daily / Practice / Custom
+- Custom mode: text input (5-letter, uppercase, auto-trim), validation via `isAllowedGuess()`, Start button
+- Uses practice mode rules (infinite guesses, no stat tracking per guess)
+- If word exists in answer list, uses its existing category + hint (no API call)
+- API fallback: category "Custom", hint "Trail starts with [first letter]"
+
 ## Session Fixes (June 26, 2026)
+
+### Keyboard staggered layout for thumb typing
+- Keyboard rows now staggered mimicking physical keyboard: row 2 shifted right (`pl-4 sm:pl-5`), row 3 shifted right more (`pl-8 sm:pl-10`)
+- Reduces thumb reach for outer keys on mobile
+
+### Sound pack selection in Settings
+- `sounds.ts` — added `switchProfile` property, exported `SwitchProfile` type
+- Key press sound uses selected profile (previously hardcoded to tactile)
+- Settings dialog shows Linear/Tactile/Clicky picker when sound enabled
+- Persisted to `trailword:prefs`
+
+### Build optimization — lazy-load SettingsDialog
+- `React.lazy(() => import('./SettingsDialog'))` with `<Suspense fallback={null}>`
+- SettingsDialog now in separate chunk (5.70 kB) loaded only on open
+
+### Swear filter: bitch unblocked
+- Removed `bitch` from swear word set in `src/lib/swear.ts`
 
 ### Answer display on loss
 - Added persistent answer card below board when `gameOver && !solved`
@@ -228,11 +260,8 @@ Priority order: Gumroad hint packs → Carbon Ads → Premium supporter → Arch
 
 ### Gameplay
 - **Daily puzzle archive** — $2 one-time to play past daily puzzles (Gumroad license key)
-- **Custom trail creation** — user picks 5-letter word, system generates category + hint
 
 ### UI/UX
-- **Sound pack selection** — different ASMR switch profiles (linear/tactile/clicky) choosable by user
-- **Keyboard layout** — split keyboard rows more ergonomically for thumb typing on mobile
 
 ### Tech
 - **Accessibility audit** — screen reader labels, focus management, ARIA live regions for messages
@@ -240,5 +269,4 @@ Priority order: Gumroad hint packs → Carbon Ads → Premium supporter → Arch
 - **Analytics** — lightweight page view counter (Plausible, Fathom, or CountAPI) — avoided so far to keep zero-cost
 - **i18n / multi-language** word lists — English-only currently, 4-billion+ non-native English speakers unserved
 - **Multi-device sync** — localStorage only, no account system. Streak dies if browser data cleared.
-- **Build optimization** — split CSS chunks, lazy-load SettingsDialog
 - **Game loop state machine** — current state is spread across 10+ `useState` hooks. A reducer or state machine would eliminate impossible states (`solved=true, gameOver=false`, etc.)
