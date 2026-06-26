@@ -604,10 +604,15 @@ export default function Game() {
         </div>
 
         {/* Message */}
-        <div className={cn(
-          'h-6 text-center text-sm font-display transition-opacity',
-          message ? 'text-surface-700 dark:text-surface-300' : 'opacity-0',
-        )}>
+        <div
+          role="status"
+          aria-live="polite"
+          aria-atomic="true"
+          className={cn(
+            'h-6 text-center text-sm font-display transition-opacity',
+            message ? 'text-surface-700 dark:text-surface-300' : 'opacity-0',
+          )}
+        >
           {message}
         </div>
 
@@ -735,6 +740,8 @@ export default function Game() {
                 value={customWord}
                 onChange={(e) => { setCustomWord(e.target.value.toUpperCase().slice(0, 5)); setCustomError(null); }}
                 onKeyDown={(e) => { if (e.key === 'Enter') startCustomGame(customWord); }}
+                aria-invalid={!!customError}
+                aria-describedby={customError ? 'custom-error' : undefined}
                 className="flex-1 rounded-xl border border-surface-300 dark:border-surface-700 bg-white dark:bg-surface-900 px-3 py-2 text-center text-lg font-display uppercase tracking-widest text-surface-700 dark:text-surface-300 placeholder:text-surface-300 dark:placeholder:text-surface-600 outline-none focus:border-surface-500 dark:focus:border-surface-400 transition disabled:opacity-40"
                 disabled={customLoading}
                 autoFocus
@@ -748,7 +755,7 @@ export default function Game() {
               </button>
             </div>
             {customError && (
-              <p className="mt-1.5 text-xs text-red-500 font-sans text-center">{customError}</p>
+              <p id="custom-error" role="alert" className="mt-1.5 text-xs text-red-500 font-sans text-center">{customError}</p>
             )}
           </div>
         )}
@@ -826,6 +833,7 @@ function ActionButton({
       className={cn(
         'marshmallow-btn flex flex-1 items-center justify-center gap-2 py-2.5 text-sm font-display',
         variant === 'blue' ? 'marshmallow-btn-blue' : 'marshmallow-btn-default',
+        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-offset-surface-950 focus-visible:ring-surface-500',
       )}
     >
       {icon}

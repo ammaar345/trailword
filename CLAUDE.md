@@ -256,6 +256,18 @@ Priority order: Gumroad hint packs → Carbon Ads → Premium supporter → Arch
 - Hints purchased state stored in `localStorage['trailword:hints-purchased']` (manual "I've purchased" button in Settings)
 - Need to: create Gumroad product with `?checkout=true` return param
 
+## Session Fixes (June 27, 2026)
+
+### Accessibility audit
+- `src/lib/focus-trap.ts` — `useDialogA11y` hook: focuses first element on open, Esc-to-close, Tab cycled within dialog, focus restored on close
+- `Tile.tsx` — `role="gridcell"`, script-friendly aria-label per tile state ("Letter E, in the right place"), decorative overlay marked aria-hidden
+- `GameBoard.tsx` — `role="grid"`, rows have `role="row"` + `aria-rowindex` + label, group has descriptive aria-label
+- `GameKeyboard.tsx` — `role="group"`, descriptive key labels ("Letter Q", "Submit guess", "Delete letter"), `aria-pressed` on tested keys, visible focus ring
+- `StatsDialog.tsx` — role=dialog + aria-labelledby via useId, focus trap wired, focus-visible rings on buttons
+- `SettingsDialog.tsx` — role=dialog + Esc handling, toggles use `role="switch"` + `aria-checked`, contrast/font/profile selectors use `role="radiogroup"` + `aria-checked`
+- `Game.tsx` — message area is `role="status"` + `aria-live="polite"` (SR announces "Not enough letters", "Solved in 3"), custom-trail error is `role="alert"`, action buttons have focus-visible rings
+- Removed debug helper scripts from `scripts/` once baseline a11y committed
+
 ## What Can Be Better
 
 ### Gameplay
@@ -270,3 +282,6 @@ Priority order: Gumroad hint packs → Carbon Ads → Premium supporter → Arch
 - **i18n / multi-language** word lists — English-only currently, 4-billion+ non-native English speakers unserved
 - **Multi-device sync** — localStorage only, no account system. Streak dies if browser data cleared.
 - **Game loop state machine** — current state is spread across 10+ `useState` hooks. A reducer or state machine would eliminate impossible states (`solved=true, gameOver=false`, etc.)
+
+### Accessibility
+- Reduced motion already handled via `data-reduced-motion`. High-contrast variant present in tile keys, but **per-page surface contrast** still inherited from base theme — could expose a stronger AAA mode.

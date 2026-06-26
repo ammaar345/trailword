@@ -1,5 +1,7 @@
+import { useId, useRef } from 'react';
 import { cn } from '@/lib/utils';
 import { type SwitchProfile } from '@/lib/sounds';
+import { useDialogA11y } from '@/lib/focus-trap';
 
 type ContrastVariant = 'medium' | 'high' | 'soft' | 'dark' | 'colorblind';
 type FontSize = 'sm' | 'md' | 'lg';
@@ -57,63 +59,84 @@ export default function SettingsDialog({
   switchProfile = 'tactile',
   onSwitchProfileChange,
 }: SettingsDialogProps) {
+  const ref = useRef<HTMLDivElement>(null);
+  const titleId = useId();
+  useDialogA11y(ref, onClose, open);
+
   if (!open) return null;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
-      <div className="w-full max-w-sm rounded-2xl border border-surface-200 dark:border-surface-800 bg-white dark:bg-surface-900 p-6 shadow-2xl">
-        <h2 className="mb-5 text-center text-lg font-display">Settings</h2>
+      <div
+        ref={ref}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby={titleId}
+        tabIndex={-1}
+        className="w-full max-w-sm rounded-2xl border border-surface-200 dark:border-surface-800 bg-white dark:bg-surface-900 p-6 shadow-2xl outline-none"
+      >
+        <h2 id={titleId} className="mb-5 text-center text-lg font-display">Settings</h2>
 
         {/* Sound toggle */}
         <div className="mb-5">
           <div className="mb-2 flex items-center justify-between">
             <span className="text-sm font-display">Sound effects</span>
             <button
+              role="switch"
+              aria-checked={soundEnabled}
               onClick={() => onSoundToggle(!soundEnabled)}
               className={cn(
                 'relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors',
                 soundEnabled ? 'bg-surface-900 dark:bg-surface-100' : 'bg-surface-300 dark:bg-surface-700',
+                'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-offset-surface-900 focus-visible:ring-surface-500',
               )}
               aria-label="Toggle sound effects"
             >
               <span
+                aria-hidden="true"
                 className={cn(
                   'pointer-events-none inline-block h-4 w-4 rounded-full bg-white dark:bg-surface-900 shadow transition-transform',
                   soundEnabled ? 'translate-x-4' : 'translate-x-0',
                 )}
               />
-            </button>
+           </button>
           </div>
 
           {soundEnabled && (
             <div className="flex items-center gap-3 pl-1">
-              <span className="text-xs text-surface-400">Volume</span>
+              <span className="text-xs text-surface-400" id="volume-label">Volume</span>
               <input
                 type="range"
                 min="0"
                 max="100"
                 value={Math.round(volume * 100)}
                 onChange={(e) => onVolumeChange(Number(e.target.value) / 100)}
-                className="h-1.5 w-full cursor-pointer appearance-none rounded-full bg-surface-200 dark:bg-surface-800 accent-surface-900 dark:accent-surface-100"
-                aria-label="Volume"
+                className={cn(
+                  'h-1.5 w-full cursor-pointer appearance-none rounded-full bg-surface-200 dark:bg-surface-800 accent-surface-900 dark:accent-surface-100',
+                  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-offset-surface-900 focus-visible:ring-surface-500',
+                )}
+                aria-labelledby="volume-label"
               />
-              <span className="w-8 text-right text-xs text-surface-400">{Math.round(volume * 100)}</span>
+              <span className="w-8 text-right text-xs text-surface-400" aria-hidden="true">{Math.round(volume * 100)}</span>
             </div>
           )}
 
           {soundEnabled && onSwitchProfileChange && (
             <div className="mt-3 pl-1">
-              <span className="text-xs text-surface-400">Key sound</span>
-              <div className="mt-1 flex gap-1.5">
+              <span className="text-xs text-surface-400" id="switch-label">Key sound</span>
+              <div role="radiogroup" aria-labelledby="switch-label" className="mt-1 flex gap-1.5">
                 {(['linear', 'tactile', 'clicky'] as const).map((p) => (
                   <button
                     key={p}
+                    role="radio"
+                    aria-checked={switchProfile === p}
                     onClick={() => onSwitchProfileChange(p)}
                     className={cn(
                       'flex-1 rounded-lg border py-1 text-[11px] font-medium font-display capitalize transition',
                       switchProfile === p
                         ? 'border-surface-900 dark:border-surface-100 bg-surface-100 dark:bg-surface-800'
                         : 'border-transparent hover:bg-surface-100 dark:hover:bg-surface-800',
+                      'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-offset-surface-900 focus-visible:ring-surface-500',
                     )}
                   >
                     {p}
@@ -126,21 +149,24 @@ export default function SettingsDialog({
 
         {/* Contrast selector */}
         <div className="mb-6">
-          <span className="mb-2 block text-sm font-display">Contrast</span>
-          <div className="grid grid-cols-4 gap-2">
+          <span className="mb-2 block text-sm font-display" id="contrast-label">Contrast</span>
+          <div role="radiogroup" aria-labelledby="contrast-label" className="grid grid-cols-4 gap-2">
             {CONTRAST_OPTIONS.map((opt) => (
               <button
                 key={opt.value}
+                role="radio"
+                aria-checked={contrast === opt.value}
                 onClick={() => onContrastChange(opt.value)}
                 className={cn(
                   'flex flex-col items-center gap-1.5 rounded-xl border-2 p-2.5 transition',
                   contrast === opt.value
                     ? 'border-surface-900 dark:border-surface-100 bg-surface-100 dark:bg-surface-800'
                     : 'border-transparent hover:bg-surface-100 dark:hover:bg-surface-800',
+                  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-offset-surface-900 focus-visible:ring-surface-500',
                 )}
                 aria-label={opt.label}
               >
-                <div className="flex gap-0.5">
+                <div className="flex gap-0.5" aria-hidden="true">
                   {opt.colors.map((c, i) => (
                     <div
                       key={i}
@@ -149,42 +175,48 @@ export default function SettingsDialog({
                     />
                   ))}
                 </div>
-                <span className="text-[10px] font-medium text-surface-500">{opt.label}</span>
-              </button>
+                <span className="text-[10px] font-medium text-surface-500" aria-hidden="true">{opt.label}</span>
+           </button>
             ))}
-          </div>
-        </div>
+         </div>
+       </div>
 
         {/* Font size */}
         <div className="mb-5">
-          <span className="mb-2 block text-sm font-display">Font size</span>
-          <div className="flex gap-2">
+          <span className="mb-2 block text-sm font-display" id="font-size-label">Font size</span>
+          <div role="radiogroup" aria-labelledby="font-size-label" className="flex gap-2">
             {FONT_SIZES.map((opt) => (
               <button
                 key={opt.value}
+                role="radio"
+                aria-checked={fontSize === opt.value}
                 onClick={() => onFontSizeChange(opt.value)}
                 className={cn(
                   'flex-1 rounded-xl border-2 py-2 text-sm font-display transition',
                   fontSize === opt.value
                     ? 'border-surface-900 dark:border-surface-100 bg-surface-100 dark:bg-surface-800'
                     : 'border-transparent hover:bg-surface-100 dark:hover:bg-surface-800',
+                  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-offset-surface-900 focus-visible:ring-surface-500',
                 )}
               >
                 {opt.label}
-              </button>
+           </button>
             ))}
-          </div>
-        </div>
+         </div>
+       </div>
 
         {/* Reduced motion */}
         <div className="mb-5">
           <div className="flex items-center justify-between">
             <span className="text-sm font-display">Reduced motion</span>
             <button
+              role="switch"
+              aria-checked={reducedMotion}
               onClick={() => onReducedMotionToggle(!reducedMotion)}
               className={cn(
                 'relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors',
                 reducedMotion ? 'bg-surface-900 dark:bg-surface-100' : 'bg-surface-300 dark:bg-surface-700',
+                'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-offset-surface-900 focus-visible:ring-surface-500',
               )}
               aria-label="Toggle reduced motion"
             >
@@ -207,7 +239,10 @@ export default function SettingsDialog({
             </p>
             <button
               onClick={onActivateHints}
-              className="w-full rounded-lg bg-amber-500 py-1.5 text-xs font-medium text-white hover:bg-amber-600 transition"
+              className={cn(
+                'w-full rounded-lg bg-amber-500 py-1.5 text-xs font-medium text-white hover:bg-amber-600 transition',
+                'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-offset-surface-900 focus-visible:ring-amber-500',
+              )}
             >
               I've purchased — activate hints
             </button>
@@ -217,7 +252,10 @@ export default function SettingsDialog({
         {/* Close */}
         <button
           onClick={onClose}
-          className="w-full rounded-xl border border-surface-200 dark:border-surface-800 py-2.5 text-sm font-display hover:bg-surface-100 dark:hover:bg-surface-800 transition"
+          className={cn(
+            'w-full rounded-xl border border-surface-200 dark:border-surface-800 py-2.5 text-sm font-display hover:bg-surface-100 dark:hover:bg-surface-800 transition',
+            'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-offset-surface-900 focus-visible:ring-surface-500',
+          )}
         >
           Close
         </button>
