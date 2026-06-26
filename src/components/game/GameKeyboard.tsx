@@ -45,12 +45,15 @@ export default function GameKeyboard({ keyStatus, onKey, pressedKey }: GameKeybo
   };
 
   return (
-    <div className="mx-auto flex max-w-[500px] flex-col gap-2"
+    <div
+      role="group"
+      aria-label="On-screen keyboard"
+      className="mx-auto flex max-w-[500px] flex-col gap-2"
       onTouchStart={onTouchStart}
       onTouchEnd={onTouchEnd}
     >
       {ROWS.map((row, idx) => (
-        <div key={idx} className={cn("flex justify-center gap-1.5 sm:gap-2", idx === 1 && "pl-4 sm:pl-5", idx === 2 && "pl-8 sm:pl-10")}>
+        <div key={idx} className={cn('flex justify-center gap-1.5 sm:gap-2', idx === 1 && 'pl-4 sm:pl-5', idx === 2 && 'pl-8 sm:pl-10')}>
           {row.map((key) => {
             const isWide = key === 'ENTER' || key === 'BACKSPACE';
             const status = keyStatus[key];
@@ -80,6 +83,11 @@ export default function GameKeyboard({ keyStatus, onKey, pressedKey }: GameKeybo
               };
             }
 
+            const ariaLabel =
+              key === 'ENTER' ? 'Submit guess' :
+              key === 'BACKSPACE' ? 'Delete letter' :
+              `Letter ${key}`;
+
             return (
               <button
                 key={key}
@@ -95,21 +103,24 @@ export default function GameKeyboard({ keyStatus, onKey, pressedKey }: GameKeybo
                   !status && 'key-marshmallow-default',
                   // Pressed glow
                   isPressed && 'key-marshmallow-pressed',
+                  // Visible focus ring for keyboard navigation
+                  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-offset-surface-950 focus-visible:ring-surface-500',
                 )}
-                aria-label={key}
+                aria-label={ariaLabel}
+                aria-pressed={status ? true : undefined}
               >
                 {key === 'BACKSPACE' ? (
-                  <BackspaceIcon className="size-5" />
+                  <BackspaceIcon className="size-5" aria-hidden="true" />
                 ) : key === 'ENTER' ? (
-                  <EnterIcon className="size-5" />
+                  <EnterIcon className="size-5" aria-hidden="true" />
                 ) : (
                   key
                 )}
-              </button>
+            </button>
             );
           })}
-        </div>
+      </div>
       ))}
-    </div>
+  </div>
   );
 }

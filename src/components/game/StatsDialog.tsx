@@ -1,5 +1,7 @@
+import { useId, useRef } from 'react';
 import type { GameStats } from '@/lib/stats';
 import { cn } from '@/lib/utils';
+import { useDialogA11y } from '@/lib/focus-trap';
 
 interface StatsDialogProps {
   stats: GameStats;
@@ -10,6 +12,10 @@ interface StatsDialogProps {
 }
 
 export default function StatsDialog({ stats, mode, gameOver, onReset, onClose }: StatsDialogProps) {
+  const ref = useRef<HTMLDivElement>(null);
+  const titleId = useId();
+  useDialogA11y(ref, onClose, gameOver);
+
   if (!gameOver) return null;
 
   const winRate = stats.played ? Math.round((stats.wins / stats.played) * 100) : 0;
@@ -17,8 +23,15 @@ export default function StatsDialog({ stats, mode, gameOver, onReset, onClose }:
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
-      <div className="w-full max-w-sm rounded-2xl border border-surface-200 dark:border-surface-800 bg-white dark:bg-surface-900 p-6 shadow-2xl">
-        <h2 className="mb-5 text-center text-lg font-display">{mode === 'practice' ? 'Practice Stats' : 'Statistics'}</h2>
+      <div
+        ref={ref}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby={titleId}
+        tabIndex={-1}
+        className="w-full max-w-sm rounded-2xl border border-surface-200 dark:border-surface-800 bg-white dark:bg-surface-900 p-6 shadow-2xl outline-none"
+      >
+        <h2 id={titleId} className="mb-5 text-center text-lg font-display">{mode === 'practice' ? 'Practice Stats' : 'Statistics'}</h2>
 
         <div className="mb-5 grid grid-cols-4 gap-3 text-center">
           <StatBox value={stats.wins} label="Solved" />
@@ -33,8 +46,8 @@ export default function StatsDialog({ stats, mode, gameOver, onReset, onClose }:
             const pct = maxDist > 0 ? (count / maxDist) * 100 : 0;
             const isBest = maxDist > 0 && count === maxDist;
             return (
-              <div key={i} className="flex items-center gap-2 text-sm">
-                <span className="w-4 text-right text-surface-400 font-medium">{i + 1}</span>
+              <div key={i} className="flex items-center gap-2 text-sm" aria-label={`${i + 1} guess${count === 1 ? '' : 'es'}: ${count}`}>
+                <span className="w-4 text-right text-surface-400 font-medium" aria-hidden="true">{i + 1}</span>
                 <div className="flex-1 overflow-hidden rounded-lg">
                   <div
                     className={cn(
@@ -58,13 +71,14 @@ export default function StatsDialog({ stats, mode, gameOver, onReset, onClose }:
         <div className="flex gap-2">
           <button
             onClick={onClose}
-            className="flex-1 rounded-xl border border-surface-200 dark:border-surface-800 py-2.5 text-sm font-display hover:bg-surface-100 dark:hover:bg-surface-800 transition"
+            className="flex-1 rounded-xl border border-surface-200 dark:border-surface-800 py-2.5 text-sm font-display hover:bg-surface-100 dark:hover:bg-surface-800 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-offset-surface-900 focus-visible:ring-surface-500"
           >
             Close
           </button>
           <button
             onClick={onReset}
-            className="rounded-xl border border-red-200 dark:border-red-900 py-2.5 px-4 text-sm text-red-500 hover:bg-red-50 dark:hover:bg-red-950 transition"
+            className="rounded-xl border border-red-200 dark:border-red-900 py-2.5 px-4 text-sm text-red-500 hover:bg-red-50 dark:hover:bg-red-950 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-offset-surface-900 focus-visible:ring-red-500"
+            aria-label="Reset statistics (permanent)"
           >
             Reset
           </button>

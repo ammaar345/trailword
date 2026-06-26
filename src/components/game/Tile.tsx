@@ -34,8 +34,24 @@ export default function Tile({ letter, status = 'empty', delay = 0, active = fal
     tileStyle.color = v.text;
   }
 
+  // Screen-reader label describes tile state — reads "Letter E, not in word" etc.
+  const ariaLabel = (() => {
+    if (isEmpty) return 'empty';
+    if (isFilled && letter) return `Letter ${letter.toUpperCase()}`;
+    if (letter) {
+      const verdict =
+        status === 'correct' ? 'in the right place' :
+        status === 'present' ? 'in the word, wrong place' :
+        'not in the word';
+      return `Letter ${letter.toUpperCase()}, ${verdict}`;
+    }
+    return '';
+  })();
+
   return (
     <div
+      role="gridcell"
+      aria-label={ariaLabel}
       className={cn(
         'tile-marshmallow',
         'relative flex aspect-square items-center justify-center text-xl font-bold uppercase select-none overflow-hidden',
@@ -54,11 +70,12 @@ export default function Tile({ letter, status = 'empty', delay = 0, active = fal
         <div
           className="pointer-events-none absolute inset-0 opacity-30"
           style={{ backgroundImage: bayerBg, backgroundRepeat: 'repeat', backgroundSize: '6px 6px' }}
+          aria-hidden="true"
         />
       )}
-      <span className="relative z-10 font-bold tracking-wider">
+      <span className="relative z-10 font-bold tracking-wider" aria-hidden="true">
         {letter || ''}
-      </span>
-    </div>
+     </span>
+   </div>
   );
 }

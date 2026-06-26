@@ -15,11 +15,21 @@ interface GameBoardProps {
 
 export default function GameBoard({ rows, rowCount, activeRow }: GameBoardProps) {
   return (
-    <div className="mx-auto grid max-w-[300px] gap-1 sm:gap-1.5">
+    <div
+      role="grid"
+      aria-label="Guess grid, 5 letters per row"
+      className="mx-auto grid max-w-[300px] gap-1 sm:gap-1.5"
+    >
       {Array.from({ length: Math.max(rowCount, rows.length) }).map((_, rowIdx) => {
         const row = rows[rowIdx];
         return (
-          <div key={rowIdx} className="grid grid-cols-5 gap-1 sm:gap-1.5">
+          <div
+            key={rowIdx}
+            role="row"
+            aria-rowindex={rowIdx + 1}
+            aria-label={`Row ${rowIdx + 1}${rowIdx === activeRow ? ', your turn' : ''}`}
+            className="grid grid-cols-5 gap-1 sm:gap-1.5"
+          >
             {Array.from({ length: 5 }).map((_, colIdx) => {
               const tile = row?.letters[colIdx] || '';
               const status = row?.statuses?.[colIdx];
@@ -34,9 +44,9 @@ export default function GameBoard({ rows, rowCount, activeRow }: GameBoardProps)
                 />
               );
             })}
-          </div>
+         </div>
         );
       })}
-    </div>
+   </div>
   );
 }
