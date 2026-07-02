@@ -1,6 +1,6 @@
 import { LogoIcon, MoonIcon, SunIcon } from '@/components/ui/icons';
 import Game from '@/components/game/Game';
-import CarbonAds from '@/components/ui/CarbonAds';
+import AdSlot from '@/components/ui/AdSlot';
 import sounds from '@/lib/sounds';
 
 interface GamePageProps {
@@ -44,13 +44,18 @@ export default function GamePage({ dark, onToggleDark }: GamePageProps) {
 
       {/* Footer */}
       <footer className="border-t border-surface-200 dark:border-surface-800 mt-12">
-        <div className="mx-auto flex max-w-2xl items-center justify-between px-4 py-4 text-xs text-surface-400">
-          <span>TrailWord &copy; {new Date().getFullYear()}</span>
-          <div className="flex items-center gap-3">
-            <CarbonAds />
-            <a href="/game/" className="hover:text-surface-600 dark:hover:text-surface-300 transition">
-              Classic version
-            </a>
+        <div className="mx-auto max-w-2xl px-4 py-4">
+          <AdSlot />
+          <div className="flex items-center justify-between text-xs text-surface-400">
+            <span>TrailWord &copy; {new Date().getFullYear()}</span>
+            <div className="flex items-center gap-3">
+              <a href="/privacy.html" className="hover:text-surface-600 dark:hover:text-surface-300 transition">
+                Privacy
+              </a>
+              <a href="/game/" className="hover:text-surface-600 dark:hover:text-surface-300 transition">
+                Classic version
+              </a>
+            </div>
           </div>
         </div>
       </footer>

@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Privacy Policy — TrailWord</title>
+    <meta name="description" content="Privacy policy for TrailWord, a daily word puzzle game." />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <style>
+      :root {
+        color-scheme: light dark;
+        --bg: #fdfcfa;
+        --card: #ffffff;
+        --text: #3a3030;
+        --muted: #8a7a74;
+        --accent: #e89890;
+        --border: #eee6e0;
+      }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --bg: #161412;
+          --card: #201d1a;
+          --text: #e8e0dc;
+          --muted: #a89890;
+          --border: #35302c;
+        }
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--text);
+        font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+        line-height: 1.65;
+      }
+      main {
+        max-width: 680px;
+        margin: 0 auto;
+        padding: 48px 20px 80px;
+      }
+      h1 { font-size: 1.9rem; margin: 0 0 4px; }
+      .updated { color: var(--muted); font-size: 0.85rem; margin-bottom: 32px; }
+      h2 { font-size: 1.15rem; margin: 32px 0 8px; }
+      p, li { color: var(--text); font-size: 0.95rem; }
+      .card {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        padding: 20px 24px;
+        margin-bottom: 16px;
+      }
+      a { color: var(--accent); }
+      .back {
+        display: inline-block;
+        margin-bottom: 24px;
+        color: var(--muted);
+        text-decoration: none;
+        font-size: 0.9rem;
+      }
+      .back:hover { color: var(--text); }
+    </style>
+  </head>
+  <body>
+    <main>
+      <a class="back" href="/">&larr; Back to TrailWord</a>
+      <h1>Privacy Policy</h1>
+      <p class="updated">Last updated: July 2, 2026</p>
+
+      <div class="card">
+        <h2>What TrailWord stores</h2>
+        <p>
+          TrailWord has no accounts and no sign-up. Your game data — statistics,
+          streaks, current board, and settings — is stored only in your
+          browser's localStorage on your device. It is never sent to our
+          servers. Clearing your browser data deletes it.
+        </p>
+      </div>
+
+      <div class="card">
+        <h2>Third-party services</h2>
+        <ul>
+          <li>
+            <strong>Cloudflare Pages</strong> hosts this site and may log
+            standard technical request data (IP address, user agent) for
+            security and delivery. See the
+            <a href="https://www.cloudflare.com/privacypolicy/" rel="noopener">Cloudflare privacy policy</a>.
+          </li>
+          <li>
+            <strong>Free Dictionary API</strong> (dictionaryapi.dev) is queried
+            for word definitions after a game ends. Only the finished puzzle
+            word is sent — nothing about you.
+          </li>
+          <li>
+            <strong>Google Fonts</strong> serves the site's fonts; your browser
+            requests font files from Google's servers.
+          </li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <h2>Advertising</h2>
+        <p>
+          TrailWord may display ads served by Google AdSense. Google and its
+          partners may use cookies or device identifiers to show ads based on
+          your visits to this and other sites. You can opt out of personalised
+          advertising at
+          <a href="https://adssettings.google.com" rel="noopener">Google Ads Settings</a>,
+          and learn more at
+          <a href="https://policies.google.com/technologies/ads" rel="noopener">Google's advertising policies</a>.
+        </p>
+      </div>
+
+      <div class="card">
+        <h2>Purchases</h2>
+        <p>
+          Optional hint packs are sold through Gumroad. Payment is handled
+          entirely by Gumroad — TrailWord never sees your payment details. See
+          the <a href="https://gumroad.com/privacy" rel="noopener">Gumroad privacy policy</a>.
+        </p>
+      </div>
+
+      <div class="card">
+        <h2>Contact</h2>
+        <p>
+          Questions about this policy:
+          <a href="mailto:robloxtruthtales@gmail.com">robloxtruthtales@gmail.com</a>
+        </p>
+      </div>
+    </main>
+  </body>
+</html>

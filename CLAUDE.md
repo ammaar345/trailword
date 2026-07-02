@@ -247,10 +247,12 @@ Priority order: Gumroad hint packs → Carbon Ads → Premium supporter → Arch
 
 ## Pending
 
-### Carbon Ads — awaiting snippet from Carbon Ads team
-- Signed up, request sent, sneaky will forward the snippet when it arrives
-- `CarbonAds` component in `src/components/ui/CarbonAds.tsx` with empty `CARBON_SCRIPT_SRC`
-- Once received, update `CARBON_SCRIPT_SRC` in that file
+### AdSense — awaiting publisher + slot IDs from sneaky
+- Carbon Ads dropped July 2, 2026 (requires 10k monthly views; site below threshold). `CarbonAds.tsx` deleted.
+- Replaced with `src/components/ui/AdSlot.tsx` — Google AdSense (no traffic minimum), renders nothing until activated
+- To activate: set `ADSENSE_CLIENT` (ca-pub-...) and `ADSENSE_SLOT` (ad unit id) constants in AdSlot.tsx
+- `public/privacy.html` added (AdSense approval requirement) — linked from footer, covers localStorage, dictionary API, AdSense, Gumroad
+- sneaky's steps: adsense.google.com signup → add site trailword.pages.dev → wait for approval → create display ad unit → send both IDs
 
 ### Gumroad hints not fully wired
 - URL `https://ammaar345.gumroad.com/l/trailword-hints` in Game.tsx constant
