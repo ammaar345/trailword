@@ -288,6 +288,13 @@ Priority order: Gumroad hint packs → Carbon Ads → Premium supporter → Arch
 - Buttons: hover lift (translateY(-1px) + deeper shadow) on marshmallow buttons
 - OS-level `prefers-reduced-motion: reduce` media query added (previously only manual toggle)
 
+### Brand assets (icons + og-image)
+- `scripts/generate-assets.mjs` — vector-defined assets rendered to PNG via `@resvg/resvg-js` (devDep); Space Grotesk TTFs (OFL) vendored in `scripts/fonts/`
+- Regenerate any time with `node scripts/generate-assets.mjs` — outputs to `public/`
+- Icon: pillowy marshmallow-pink tile, bold white T, trail of 3 rising mini-tiles; simplified variant (no trail/gloss) for 16/32px favicons
+- Outputs: `favicon.svg`, `favicon-16/32.png`, `apple-touch-icon.png` (180), `icon-192.png` + `icon-512.png` (PWA-ready), `og-image.png` (1200x630 — wordmark + mid-solve TRAIL/WORD board)
+- `index.html` wired: icon links + `og:image`/`twitter:image` absolute URLs
+
 ### Mobile polish
 - `index.html` — `viewport-fit=cover` + `theme-color` meta (light/dark)
 - `touch-action: manipulation` + transparent tap highlight on buttons/links/inputs (kills double-tap zoom delay)
