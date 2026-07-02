@@ -87,8 +87,10 @@ Settings: enabled toggle + volume slider (persisted in `localStorage['trailword:
 
 ## Hosting
 - Cloudflare Pages at `trailword.pages.dev` (Git-based deploy from GitHub master)
-- SPA routing via `_redirects` file: `/* /index.html 200`
-- Cloudflare API token stored in session context (not in repo)
+- Git integration re-connected July 2, 2026 — was previously broken (watching wrong repo/branch), so deploys silently stopped before June 24. If pushes stop deploying again, check Workers & Pages → trailword → Deployments first.
+- Build config: production branch `master`, build command `npm run build`, output `dist`, Node pinned via `.node-version` (22) — vite 8 needs Node 20.19+
+- SPA routing via `_redirects` file: `/* /index.html 200`. NOTE: this makes EVERY URL return 200 with HTML — to verify a deploy landed, check `content_type` of a static asset (e.g. og-image.png should be image/png), never just the status code
+- No Cloudflare API token available in sessions; deploy verification is curl-based against the live URL
 
 ## Design Decisions
 - Colors are CSS variables in `src/index.css` — Tailwind surface colors (`--color-surface-*`), tile colors, and key colors all overridable per contrast variant
