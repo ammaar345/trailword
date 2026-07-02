@@ -4,6 +4,10 @@ import { useEffect, useRef } from 'react';
 /**
  * Carbon Ads embed component.
  *
+ * NOTE: Carbon Ads requires 10,000+ monthly visitors to qualify.
+ * If your site does not meet this threshold, the ad script will not load.
+ * Consider alternatives like BuySellAds, EthicalAds, or self-serve sponsorships.
+ *
  * To activate:
  * 1. Sign up at https://carbonads.net
  * 2. Get your script URL (looks like: //cdn.carbonads.com/carbon.js?serve=...&placement=...)

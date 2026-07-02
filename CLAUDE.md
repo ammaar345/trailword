@@ -268,6 +268,33 @@ Priority order: Gumroad hint packs → Carbon Ads → Premium supporter → Arch
 - `Game.tsx` — message area is `role="status"` + `aria-live="polite"` (SR announces "Not enough letters", "Solved in 3"), custom-trail error is `role="alert"`, action buttons have focus-visible rings
 - Removed debug helper scripts from `scripts/` once baseline a11y committed
 
+## Session Fixes (July 2, 2026)
+
+### Performance / correctness fixes
+- `Game.tsx` — `loadBoardState()` was called on every render (JSON.parse + puzzle calc); now lazy `useState(loadBoardState)` runs once
+- `Game.tsx` — prefs were `JSON.parse`d 6 times on mount (one per setting); now single `loadPrefs()` into `initialPrefs`
+- `Game.tsx` — global keydown listener: attached once via `handleKeyRef` (was re-attached every keystroke); ignores Ctrl/Meta/Alt combos (Ctrl+C no longer typed C into board); ignores events from inputs/textareas (custom-trail input no longer leaked letters into board); ignores keys while Stats/Settings dialogs open
+- `Game.tsx` — `handleSubmit` deps now include `mode`; dead ternary in practice branch (`mode === 'practice' ? 'click' : 'lose'` inside practice-only branch) simplified to `'click'`; removed dead `soundEnabledRef`/`volumeRef`
+- `Tile.tsx` + `GameKeyboard.tsx` — wrapped in `React.memo`; `onKey` is a stable callback via ref, so 30 tiles + 28 keys no longer re-render on every keystroke
+- `index.css` — base `.marshmallow-card` / `.marshmallow-header` styles were missing (default Medium contrast rendered them transparent); added neutral gradient + border + shadow for light/dark
+
+### Animations (all respect reduced-motion)
+- Letter pop: `.tile-marshmallow-filled > span` pops 130ms when letter lands (span-level so it doesn't fight tile glow animation)
+- Row shake: invalid guess / not-enough-letters shakes active row (`shakeRow` state, 450ms, auto-clears)
+- Win bounce: solved row tiles bounce staggered 100ms apart (`winRow` state, inline animation overrides flip)
+- Message toast: fade+slide in (`animate-message-in`)
+- Cards: `card-in` entrance (fade + rise) on all marshmallow cards
+- Dialogs: `dialog-in` scale+fade panel, `backdrop-in` fade backdrop
+- Buttons: hover lift (translateY(-1px) + deeper shadow) on marshmallow buttons
+- OS-level `prefers-reduced-motion: reduce` media query added (previously only manual toggle)
+
+### Mobile polish
+- `index.html` — `viewport-fit=cover` + `theme-color` meta (light/dark)
+- `touch-action: manipulation` + transparent tap highlight on buttons/links/inputs (kills double-tap zoom delay)
+- `.game-safe-bottom` — bottom padding includes `env(safe-area-inset-bottom)` for notch phones
+- ENTER/BACKSPACE keys narrower on mobile (`min-w-[52px] sm:min-w-[62px]`) — letter keys keep more width, no horizontal overflow at 375px
+- SettingsDialog panel `max-h-[85dvh] overflow-y-auto` — no longer taller than small screens
+
 ## What Can Be Better
 
 ### Gameplay
@@ -276,7 +303,6 @@ Priority order: Gumroad hint packs → Carbon Ads → Premium supporter → Arch
 ### UI/UX
 
 ### Tech
-- **Accessibility audit** — screen reader labels, focus management, ARIA live regions for messages
 - **PWA support** — full offline play via service worker (currently service worker exists in `game/` but not in React build)
 - **Analytics** — lightweight page view counter (Plausible, Fathom, or CountAPI) — avoided so far to keep zero-cost
 - **i18n / multi-language** word lists — English-only currently, 4-billion+ non-native English speakers unserved

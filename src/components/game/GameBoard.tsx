@@ -1,4 +1,5 @@
 import Tile from './Tile';
+import { cn } from '@/lib/utils';
 
 export type TileStatus = 'correct' | 'present' | 'absent' | 'empty' | 'filled';
 
@@ -11,9 +12,13 @@ interface GameBoardProps {
   rows: RowData[];
   rowCount: number;
   activeRow?: number;
+  /** Row index to shake (invalid guess feedback) */
+  shakeRow?: number | null;
+  /** Row index whose tiles bounce after a win */
+  winRow?: number | null;
 }
 
-export default function GameBoard({ rows, rowCount, activeRow }: GameBoardProps) {
+export default function GameBoard({ rows, rowCount, activeRow, shakeRow, winRow }: GameBoardProps) {
   return (
     <div
       role="grid"
@@ -28,7 +33,7 @@ export default function GameBoard({ rows, rowCount, activeRow }: GameBoardProps)
             role="row"
             aria-rowindex={rowIdx + 1}
             aria-label={`Row ${rowIdx + 1}${rowIdx === activeRow ? ', your turn' : ''}`}
-            className="grid grid-cols-5 gap-1 sm:gap-1.5"
+            className={cn('grid grid-cols-5 gap-1 sm:gap-1.5', rowIdx === shakeRow && 'animate-shake')}
           >
             {Array.from({ length: 5 }).map((_, colIdx) => {
               const tile = row?.letters[colIdx] || '';
@@ -41,6 +46,7 @@ export default function GameBoard({ rows, rowCount, activeRow }: GameBoardProps)
                   status={status || (tile ? 'filled' : 'empty')}
                   delay={delay}
                   active={rowIdx === activeRow}
+                  win={rowIdx === winRow}
                 />
               );
             })}

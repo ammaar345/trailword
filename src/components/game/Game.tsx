@@ -52,8 +52,26 @@ function loadBoardState(): BoardState | null {
   }
 }
 
+interface StoredPrefs {
+  soundEnabled?: boolean;
+  volume?: number;
+  contrast?: ContrastVariant;
+  reducedMotion?: boolean;
+  fontSize?: 'sm' | 'md' | 'lg';
+  switchProfile?: SwitchProfile;
+}
+
+function loadPrefs(): StoredPrefs {
+  try {
+    return JSON.parse(localStorage.getItem('trailword:prefs') || '{}');
+  } catch {
+    return {};
+  }
+}
+
 export default function Game() {
-  const savedBoard = loadBoardState();
+  const [savedBoard] = useState(loadBoardState);
+  const [initialPrefs] = useState(loadPrefs);
 
   const [puzzle, setPuzzle] = useState<DailyPuzzle>(getDailyPuzzle);
   const [mode, setMode] = useState<'daily' | 'practice'>('daily');
@@ -100,25 +118,13 @@ export default function Game() {
   const [pressedKey, setPressedKey] = useState<string>('');
   const pressedKeyTimer = useRef<number | null>(null);
 
-  // Settings state — persisted to localStorage
-  const [soundEnabled, setSoundEnabled] = useState<boolean>(() => {
-    try { const p = JSON.parse(localStorage.getItem('trailword:prefs') || '{}'); return p.soundEnabled ?? true; } catch { return true; }
-  });
-  const [volume, setVolume] = useState<number>(() => {
-    try { const p = JSON.parse(localStorage.getItem('trailword:prefs') || '{}'); return p.volume ?? 0.25; } catch { return 0.25; }
-  });
-  const [contrast, setContrast] = useState<ContrastVariant>(() => {
-    try { const p = JSON.parse(localStorage.getItem('trailword:prefs') || '{}'); return p.contrast ?? 'medium'; } catch { return 'medium'; }
-  });
-  const [reducedMotion, setReducedMotion] = useState<boolean>(() => {
-    try { const p = JSON.parse(localStorage.getItem('trailword:prefs') || '{}'); return p.reducedMotion ?? false; } catch { return false; }
-  });
-  const [fontSize, setFontSize] = useState<'sm' | 'md' | 'lg'>(() => {
-    try { const p = JSON.parse(localStorage.getItem('trailword:prefs') || '{}'); return p.fontSize ?? 'md'; } catch { return 'md'; }
-  });
-  const [switchProfile, setSwitchProfile] = useState<SwitchProfile>(() => {
-    try { const p = JSON.parse(localStorage.getItem('trailword:prefs') || '{}'); return p.switchProfile ?? 'tactile'; } catch { return 'tactile'; }
-  });
+  // Settings state — persisted to localStorage (parsed once via initialPrefs)
+  const [soundEnabled, setSoundEnabled] = useState<boolean>(initialPrefs.soundEnabled ?? true);
+  const [volume, setVolume] = useState<number>(initialPrefs.volume ?? 0.25);
+  const [contrast, setContrast] = useState<ContrastVariant>(initialPrefs.contrast ?? 'medium');
+  const [reducedMotion, setReducedMotion] = useState<boolean>(initialPrefs.reducedMotion ?? false);
+  const [fontSize, setFontSize] = useState<'sm' | 'md' | 'lg'>(initialPrefs.fontSize ?? 'md');
+  const [switchProfile, setSwitchProfile] = useState<SwitchProfile>(initialPrefs.switchProfile ?? 'tactile');
 
   // Custom trail state
   const [showNewGameMenu, setShowNewGameMenu] = useState<boolean>(false);
@@ -126,12 +132,18 @@ export default function Game() {
   const [customError, setCustomError] = useState<string | null>(null);
   const [customLoading, setCustomLoading] = useState<boolean>(false);
 
-  // Sync sound settings
-  const soundEnabledRef = useRef(soundEnabled);
-  const volumeRef = useRef(volume);
-  soundEnabledRef.current = soundEnabled;
-  volumeRef.current = volume;
+  // Animation state — shake on invalid guess, bounce on win
+  const [shakeRow, setShakeRow] = useState<number | null>(null);
+  const [winRow, setWinRow] = useState<number | null>(null);
+  const shakeTimer = useRef<number | null>(null);
 
+  const triggerShake = useCallback((row: number) => {
+    setShakeRow(row);
+    if (shakeTimer.current) clearTimeout(shakeTimer.current);
+    shakeTimer.current = window.setTimeout(() => setShakeRow(null), 500);
+  }, []);
+
+  // Sync sound settings
   useEffect(() => { sounds.enabled = soundEnabled; }, [soundEnabled]);
   useEffect(() => { sounds.volume = volume; }, [volume]);
   useEffect(() => { sounds.switchProfile = switchProfile; }, [switchProfile]);
@@ -220,6 +232,8 @@ export default function Game() {
     setDefinitionLoading(false);
     setTimeUntilNext('');
     setAnimating(false);
+    setShakeRow(null);
+    setWinRow(null);
     // Clear saved board state for daily mode
     if (newMode === 'daily') {
       localStorage.removeItem(BOARD_STATE_KEY);
@@ -254,6 +268,8 @@ export default function Game() {
       setDefinitionLoading(false);
       setTimeUntilNext('');
       setAnimating(false);
+      setShakeRow(null);
+      setWinRow(null);
       setShowNewGameMenu(false);
       setCustomWord('');
     } catch {
@@ -321,11 +337,13 @@ export default function Game() {
     const guess = currentGuess.toLowerCase().trim();
     if (guess.length !== COL_COUNT) {
       sounds.play('click');
+      triggerShake(currentRow);
       showMessage('Not enough letters');
       return;
     }
     if (!isAllowedGuess(guess)) {
       sounds.play('click');
+      triggerShake(currentRow);
       showMessage('Invalid word');
       return;
     }
@@ -339,6 +357,7 @@ export default function Game() {
     setTimeout(() => {
       if (guess === puzzle.answer) {
         sounds.play('win');
+        setWinRow(currentRow);
         setSolved(true);
         setGameOver(true);
         setMessage(mode === 'practice' ? 'Solved!' : `Solved in ${currentRow + 1}/6!`);
@@ -357,7 +376,7 @@ export default function Game() {
       } else if (currentRow >= ROW_COUNT - 1) {
         if (mode === 'practice') {
           // Infinite practice — no lose limit, grow the board
-          sounds.play(mode === 'practice' ? 'click' : 'lose');
+          sounds.play('click');
           setRows(prev => [...prev, { letters: [] as string[] }]);
           setCurrentRow(r => r + 1);
         } else {
@@ -384,7 +403,7 @@ export default function Game() {
       }
       setAnimating(false);
     }, 500 + COL_COUNT * 100);
-  }, [gameOver, animating, currentGuess, puzzle, commitGuess, currentRow, stats, practiceStats, showMessage, today]);
+  }, [gameOver, animating, currentGuess, puzzle, commitGuess, currentRow, mode, stats, practiceStats, showMessage, triggerShake, today]);
 
   const addLetter = useCallback(
     (letter: string) => {
@@ -426,26 +445,37 @@ export default function Game() {
     [handleSubmit, removeLetter, addLetter, flashKey],
   );
 
-  // Physical keyboard
+  // Latest-handler refs so the physical listener and on-screen keyboard
+  // keep stable identities (listener attached once, GameKeyboard can memo)
+  const handleKeyRef = useRef(handleKey);
+  handleKeyRef.current = handleKey;
+  const dialogOpenRef = useRef(false);
+  dialogOpenRef.current = showStats || showSettings;
+
+  const onKey = useCallback((key: string) => handleKeyRef.current(key), []);
+
+  // Physical keyboard — attached once on mount
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
+      if (e.ctrlKey || e.metaKey || e.altKey) return; // browser shortcuts stay browser shortcuts
+      if (dialogOpenRef.current) return; // don't type into the board behind a dialog
+      const target = e.target as HTMLElement | null;
+      if (target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable)) return;
       const mappedKey =
         e.key === 'Enter' ? 'ENTER' :
         e.key === 'Backspace' ? 'BACKSPACE' :
         /^[a-z]$/i.test(e.key) ? e.key.toUpperCase() : null;
-      if (mappedKey) flashKey(mappedKey);
-      if (e.key === 'Enter') { sounds.play('enter'); handleSubmit(); }
-      else if (e.key === 'Backspace') removeLetter();
-      else if (/^[a-z]$/i.test(e.key)) addLetter(e.key.toUpperCase());
+      if (mappedKey) handleKeyRef.current(mappedKey);
     };
     window.addEventListener('keydown', onKeyDown);
     return () => window.removeEventListener('keydown', onKeyDown);
-  }, [handleSubmit, removeLetter, addLetter, flashKey]);
+  }, []);
 
-  // Cleanup pressedKey timer on unmount
+  // Cleanup timers on unmount
   useEffect(() => {
     return () => {
       if (pressedKeyTimer.current) clearTimeout(pressedKeyTimer.current);
+      if (shakeTimer.current) clearTimeout(shakeTimer.current);
     };
   }, []);
 
@@ -568,7 +598,7 @@ export default function Game() {
 
   return (
     <div data-contrast={contrast} data-reduced-motion={reducedMotion ? 'true' : undefined}>
-      <div className="mx-auto flex w-full max-w-lg flex-col items-center gap-3 px-4 pb-8">
+      <div className="game-safe-bottom mx-auto flex w-full max-w-lg flex-col items-center gap-3 px-4">
         {/* Clue hero */}
         <div className="marshmallow-card w-full rounded-2xl p-4">
           <span className="flex items-center gap-2 text-xs tracking-widest text-surface-500 dark:text-surface-400 uppercase font-display">
@@ -600,7 +630,7 @@ export default function Game() {
 
         {/* Board */}
         <div className="w-full">
-          <GameBoard rows={displayRows} rowCount={ROW_COUNT} activeRow={currentRow} />
+          <GameBoard rows={displayRows} rowCount={ROW_COUNT} activeRow={currentRow} shakeRow={shakeRow} winRow={winRow} />
         </div>
 
         {/* Message */}
@@ -610,7 +640,7 @@ export default function Game() {
           aria-atomic="true"
           className={cn(
             'h-6 text-center text-sm font-display transition-opacity',
-            message ? 'text-surface-700 dark:text-surface-300' : 'opacity-0',
+            message ? 'text-surface-700 dark:text-surface-300 animate-message-in' : 'opacity-0',
           )}
         >
           {message}
@@ -761,7 +791,7 @@ export default function Game() {
         )}
 
         {/* Keyboard */}
-        <GameKeyboard keyStatus={keyStatus} onKey={handleKey} pressedKey={pressedKey} />
+        <GameKeyboard keyStatus={keyStatus} onKey={onKey} pressedKey={pressedKey} />
       </div>
 
       {showStats && (

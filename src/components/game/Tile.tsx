@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { cn } from '@/lib/utils';
 import { bayerPatternDataUri } from '@/lib/dither-pattern';
 
@@ -7,6 +8,8 @@ interface TileProps {
   delay?: number;
   /** If true, tile glows softly — used on current typing row */
   active?: boolean;
+  /** If true, tile bounces (winning row) */
+  win?: boolean;
 }
 
 const bayerBg = bayerPatternDataUri(2);
@@ -18,7 +21,7 @@ const varMap: Record<string, { bg: string; border: string; text: string }> = {
   absent: { bg: 'var(--tile-absent-bg, #d4d4d4)', border: 'var(--tile-absent-border, #d4d4d4)', text: 'var(--tile-absent-text, #171717)' },
 };
 
-export default function Tile({ letter, status = 'empty', delay = 0, active = false }: TileProps) {
+function Tile({ letter, status = 'empty', delay = 0, active = false, win = false }: TileProps) {
   const v = varMap[status];
   const showTexture = status === 'correct' || status === 'present' || status === 'absent';
   const isFilled = status === 'filled';
@@ -32,6 +35,10 @@ export default function Tile({ letter, status = 'empty', delay = 0, active = fal
     tileStyle.backgroundColor = v.bg;
     tileStyle.borderColor = v.border;
     tileStyle.color = v.text;
+  }
+  if (win) {
+    // shorthand set last so it overrides the flip delay/duration above
+    tileStyle.animation = `win-bounce 480ms ease ${delay}ms`;
   }
 
   // Screen-reader label describes tile state — reads "Letter E, not in word" etc.
@@ -79,3 +86,5 @@ export default function Tile({ letter, status = 'empty', delay = 0, active = fal
    </div>
   );
 }
+
+export default memo(Tile);

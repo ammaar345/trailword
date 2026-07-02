@@ -1,4 +1,4 @@
-import { useRef } from 'react';
+import { memo, useRef } from 'react';
 import { cn } from '@/lib/utils';
 import { BackspaceIcon, EnterIcon } from './icons';
 
@@ -18,7 +18,7 @@ const ROWS = [
   ['ENTER', 'Z', 'X', 'C', 'V', 'B', 'N', 'M', 'BACKSPACE'],
 ];
 
-export default function GameKeyboard({ keyStatus, onKey, pressedKey }: GameKeyboardProps) {
+function GameKeyboard({ keyStatus, onKey, pressedKey }: GameKeyboardProps) {
   const touchStart = useRef<{ x: number; y: number } | null>(null);
 
   const onTouchStart = (e: React.TouchEvent) => {
@@ -97,7 +97,7 @@ export default function GameKeyboard({ keyStatus, onKey, pressedKey }: GameKeybo
                   // Base marshmallow shape
                   'key-marshmallow',
                   'flex items-center justify-center uppercase select-none',
-                  isWide ? 'min-w-[62px] px-3 text-[12px]' : 'min-w-0 w-full max-w-[54px]',
+                  isWide ? 'min-w-[52px] sm:min-w-[62px] px-2 sm:px-3 text-[12px]' : 'min-w-0 w-full max-w-[54px]',
                   'h-16 sm:h-[72px]',
                   // Default marshmallow color (no status)
                   !status && 'key-marshmallow-default',
@@ -124,3 +124,5 @@ export default function GameKeyboard({ keyStatus, onKey, pressedKey }: GameKeybo
   </div>
   );
 }
+
+export default memo(GameKeyboard);
