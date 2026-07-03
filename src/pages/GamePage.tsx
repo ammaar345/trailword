@@ -1,6 +1,7 @@
 import { LogoIcon, MoonIcon, SunIcon } from '@/components/ui/icons';
 import Game from '@/components/game/Game';
 import AdSlot from '@/components/ui/AdSlot';
+import SideDecor from '@/components/ui/SideDecor';
 import sounds from '@/lib/sounds';
 
 interface GamePageProps {
@@ -11,6 +12,7 @@ interface GamePageProps {
 export default function GamePage({ dark, onToggleDark }: GamePageProps) {
   return (
     <div className="min-h-screen bg-surface-50 text-surface-900 dark:bg-surface-950 dark:text-surface-100 font-sans transition-colors">
+      <SideDecor />
       {/* Header */}
       <header className="marshmallow-header sticky top-0 z-50">
         <div className="mx-auto flex h-14 max-w-2xl items-center justify-between px-4">
@@ -38,7 +40,7 @@ export default function GamePage({ dark, onToggleDark }: GamePageProps) {
       </header>
 
       {/* Game */}
-      <main className="pt-4">
+      <main className="relative z-10 pt-4">
         <Game />
       </main>
 

@@ -292,6 +292,11 @@ Priority order: Gumroad hint packs → Carbon Ads → Premium supporter → Arch
 - Buttons: hover lift (translateY(-1px) + deeper shadow) on marshmallow buttons
 - OS-level `prefers-reduced-motion: reduce` media query added (previously only manual toggle)
 
+### Brand assets v2 (July 2, 2026, later session)
+- Icon redesigned: 3D mechanical keycap (top face + side wall + cast shadow) on cream backdrop, mini keycap trail; flat simplified mark for 16/32 favicons
+- og-image redesigned: dark warm espresso scene, glowing solved TRAIL row, pastel A/S/M/R keycap trio hinting keyboard sounds — pops in dark-mode chat clients
+- `SideDecor.tsx` — xl+ only decorative side columns: mechanical switches (pastel cap hovering over colored MX-style stem + housing + plate) pressing on organic loops with synced colored underglow pulse; floating letter tiles (use `--tile-absent-*` vars so they adapt to contrast themes); blush blobs. aria-hidden, pointer-events-none, frozen by reduced-motion rules.
+
 ### Brand assets (icons + og-image)
 - `scripts/generate-assets.mjs` — vector-defined assets rendered to PNG via `@resvg/resvg-js` (devDep); Space Grotesk TTFs (OFL) vendored in `scripts/fonts/`
 - Regenerate any time with `node scripts/generate-assets.mjs` — outputs to `public/`
