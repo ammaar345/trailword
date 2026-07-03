@@ -23,7 +23,7 @@ export default function GameBoard({ rows, rowCount, activeRow, shakeRow, winRow 
     <div
       role="grid"
       aria-label="Guess grid, 5 letters per row"
-      className="mx-auto grid max-w-[300px] gap-1 sm:gap-1.5"
+      className="game-board mx-auto grid max-w-[300px] gap-1 sm:gap-1.5"
     >
       {Array.from({ length: Math.max(rowCount, rows.length) }).map((_, rowIdx) => {
         const row = rows[rowIdx];

@@ -814,12 +814,20 @@
   85%, 100% { opacity: 0.28; }
 }
 @keyframes deco-bob {
-  0%, 100% { transform: translateY(0) rotate(-2deg); }
-  50% { transform: translateY(-12px) rotate(2deg); }
+  0%, 100% { transform: translateY(0) rotate(calc(var(--deco-rot, 0deg) - 2deg)); }
+  50% { transform: translateY(-12px) rotate(calc(var(--deco-rot, 0deg) + 2deg)); }
+}
+
+/* full-height side column; children position themselves with top:% */
+.deco-rail {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 150px;
 }
 
 .deco-switch {
-  position: relative;
+  position: absolute;
   width: 64px;
   height: 104px;
   opacity: 0.9;
@@ -899,15 +907,13 @@
 }
 
 .deco-float-tile {
-  width: 46px;
-  height: 46px;
+  position: absolute;
   border-radius: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
   font-family: var(--font-display);
   font-weight: 700;
-  font-size: 18px;
   background: var(--tile-absent-bg, #ece8e4);
   color: var(--tile-absent-text, #6a6260);
   box-shadow: 0 2px 6px rgba(0,0,0,0.08);
@@ -932,7 +938,15 @@ button, a, input, [role="button"] {
 
 /* Bottom padding clears notch-phone home indicator */
 .game-safe-bottom {
-  padding-bottom: calc(2rem + env(safe-area-inset-bottom, 0px));
+  padding-bottom: calc(1.25rem + env(safe-area-inset-bottom, 0px));
+}
+
+/* Short screens (iPhone SE class) — compress so the keyboard needs
+ * minimal scrolling. Unlayered rules here win over Tailwind utilities. */
+@media (max-height: 720px) {
+  .game-board { max-width: 264px; }
+  .game-legend { display: none; }
+  .key-marshmallow { height: 48px; }
 }
 
 /* Font size scaling */

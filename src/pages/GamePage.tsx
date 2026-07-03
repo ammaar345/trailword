@@ -40,7 +40,7 @@ export default function GamePage({ dark, onToggleDark }: GamePageProps) {
       </header>
 
       {/* Game */}
-      <main className="relative z-10 pt-4">
+      <main className="relative z-10 pt-2">
         <Game />
       </main>
 

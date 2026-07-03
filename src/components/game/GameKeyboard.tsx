@@ -48,7 +48,7 @@ function GameKeyboard({ keyStatus, onKey, pressedKey }: GameKeyboardProps) {
     <div
       role="group"
       aria-label="On-screen keyboard"
-      className="mx-auto flex max-w-[500px] flex-col gap-2"
+      className="mx-auto flex max-w-[500px] flex-col gap-1.5"
       onTouchStart={onTouchStart}
       onTouchEnd={onTouchEnd}
     >
@@ -98,7 +98,7 @@ function GameKeyboard({ keyStatus, onKey, pressedKey }: GameKeyboardProps) {
                   'key-marshmallow',
                   'flex items-center justify-center uppercase select-none',
                   isWide ? 'min-w-[52px] sm:min-w-[62px] px-2 sm:px-3 text-[12px]' : 'min-w-0 w-full max-w-[54px]',
-                  'h-16 sm:h-[72px]',
+                  'h-14 sm:h-16',
                   // Default marshmallow color (no status)
                   !status && 'key-marshmallow-default',
                   // Pressed glow

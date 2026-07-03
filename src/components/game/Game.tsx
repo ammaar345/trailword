@@ -598,9 +598,9 @@ export default function Game() {
 
   return (
     <div data-contrast={contrast} data-reduced-motion={reducedMotion ? 'true' : undefined}>
-      <div className="game-safe-bottom mx-auto flex w-full max-w-lg flex-col items-center gap-3 px-4">
+      <div className="game-safe-bottom mx-auto flex w-full max-w-lg flex-col items-center gap-2 px-4">
         {/* Clue hero */}
-        <div className="marshmallow-card w-full rounded-2xl p-4">
+        <div className="marshmallow-card w-full rounded-2xl p-3">
           <span className="flex items-center gap-2 text-xs tracking-widest text-surface-500 dark:text-surface-400 uppercase font-display">
             {mode === 'practice' ? 'Practice trail' : "Today's trail"}
             <span className={cn(
@@ -639,7 +639,7 @@ export default function Game() {
           aria-live="polite"
           aria-atomic="true"
           className={cn(
-            'h-6 text-center text-sm font-display transition-opacity',
+            'h-5 text-center text-sm font-display transition-opacity',
             message ? 'text-surface-700 dark:text-surface-300 animate-message-in' : 'opacity-0',
           )}
         >
@@ -686,7 +686,7 @@ export default function Game() {
 
         {/* Color Legend */}
         {!gameOver && (
-          <div className="flex items-center justify-center gap-4 text-xs text-surface-500 dark:text-surface-400">
+          <div className="game-legend flex items-center justify-center gap-4 text-xs text-surface-500 dark:text-surface-400">
             <div className="flex items-center gap-1.5">
               <span className="inline-block size-3 rounded-[3px]" style={{ backgroundColor: 'var(--tile-correct-bg)' }} />
               <span className="whitespace-nowrap">Right place</span>
@@ -861,7 +861,7 @@ function ActionButton({
     <button
       onClick={onClick}
       className={cn(
-        'marshmallow-btn flex flex-1 items-center justify-center gap-2 py-2.5 text-sm font-display',
+        'marshmallow-btn flex flex-1 items-center justify-center gap-2 py-2 text-sm font-display',
         variant === 'blue' ? 'marshmallow-btn-blue' : 'marshmallow-btn-default',
         'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-offset-surface-950 focus-visible:ring-surface-500',
       )}
