@@ -46,40 +46,50 @@ are set, so the site is clean until you finish this.
 
 ---
 
-## 2. Gumroad hint packs ($3, unlimited hints)
+## 2. Gumroad Extra Hints ($3, one extra hint per puzzle)
 
-**Status:** The game already has the full flow: 2 free hints → "Buy hints"
-button → opens your Gumroad page → player activates via Settings after
-purchase. Only the Gumroad product itself is missing — the button currently
-leads to a 404.
+**Status:** The game has the full flow: 2 free hints per puzzle then a "Buy
+hints" button that opens your Gumroad page; after buying, the player taps
+"activate" in Settings and gets a 3rd hint on every puzzle. Only the Gumroad
+product itself is missing. The button links to
+`https://sneakylabs.gumroad.com/l/trailword-hints` (username `sneakylabs`).
+
+### The hint model (so the copy matches the game)
+- Free: 2 hints per puzzle. Both just say a letter is in the word ("the word
+  contains C"), no position, nothing auto-typed.
+- Paid: a 3rd hint that reveals ONE position ("position 1 is C"). Never the
+  last remaining letter, never auto-solves. The player always types it.
+- So the pitch is "one more hint when you're stuck," not "unlimited."
 
 ### Steps
 
-1. Go to **https://gumroad.com** → log in (account: `ammaar345`, based on the
-   URL already wired in the code)
-2. **New product**
-   - Type: **Digital product**
-   - Name: `TrailWord — Unlimited Hints`
-   - Price: **$3**
-3. **CRITICAL — the URL slug must be exactly** `trailword-hints`
-   (Product → Settings → URL). The game links to:
-   `https://ammaar345.gumroad.com/l/trailword-hints`
-   If the slug is different, the Buy button 404s.
-4. Content section — paste this so buyers know what to do:
-   > Thanks for supporting TrailWord! To activate your unlimited hints:
+1. Go to **https://gumroad.com** → log in as `sneakylabs`
+2. **New product** → Type: **Digital product**
+   - Name: `TrailWord Extra Hints`
+   - Price: **$3** (one-time, pay-what-you-want OFF)
+3. **CRITICAL — URL slug must be exactly** `trailword-hints`
+   (Product → Settings → URL). Final URL must be
+   `https://sneakylabs.gumroad.com/l/trailword-hints`. Any other slug 404s
+   the Buy button.
+4. Cover + thumbnail (already generated, in the repo `marketing/` folder):
+   - Cover → `marketing/gumroad-extra-hints-cover.png` (1280x720)
+   - Thumbnail → `marketing/gumroad-extra-hints-thumb.png` (square)
+5. Call to action: leave **"I want this!"**
+6. Content / receipt text — paste this so buyers know how to activate:
+   > Thank you for supporting TrailWord.
+   > To activate your extra hints:
    > 1. Go back to https://trailword.pages.dev
-   > 2. Open **Settings** (gear button)
-   > 3. Click **"I've purchased — activate hints"**
-   > That's it — unlimited hints on this device. Keep this receipt in case
-   > you switch browsers.
-5. Publish the product.
-6. **Test it end-to-end:** open the game → burn 2 free hints → click
-   **Buy hints** → confirm your Gumroad page loads with the right price.
-   (Use Gumroad's test purchase if you want to check the receipt email.)
+   > 2. Tap Settings (the gear button)
+   > 3. Tap "I've purchased, activate hints"
+   > That's it. An extra hint on every puzzle, on this device. Keep this
+   > receipt in case you switch browsers or devices.
+7. Publish.
+8. **Test end-to-end:** open the game → use 2 free hints → click **Buy hints**
+   → confirm your Gumroad page loads at the right price.
 
 ### Notes
-- Activation is honor-system (a button in Settings sets a local flag). Fine
-  at this scale; license-key verification can come later if abuse shows up.
+- Activation is honor-system (a Settings button sets a local flag). Fine at
+  this scale; license-key verification can come later if abuse shows up.
 - Gumroad takes 10% + processing. No monthly fees.
 
 ---

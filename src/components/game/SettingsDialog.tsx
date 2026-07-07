@@ -235,7 +235,7 @@ export default function SettingsDialog({
         {!hintsPurchased && onActivateHints && (
           <div className="mb-5 rounded-xl border border-amber-200 dark:border-amber-900 bg-amber-50 dark:bg-amber-950 p-3">
             <p className="text-xs text-amber-700 dark:text-amber-300 mb-2">
-              Purchased hint packs? Click below to activate unlimited hints.
+              Purchased Extra Hints? Click below to activate your extra hint on every puzzle.
             </p>
             <button
               onClick={onActivateHints}
@@ -244,7 +244,7 @@ export default function SettingsDialog({
                 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-offset-surface-900 focus-visible:ring-amber-500',
               )}
             >
-              I've purchased — activate hints
+              I've purchased, activate hints
             </button>
           </div>
         )}

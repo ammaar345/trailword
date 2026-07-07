@@ -17,7 +17,7 @@ import { TrophyIcon } from './icons';
 const ROW_COUNT = 6;
 const COL_COUNT = 5;
 const BOARD_STATE_KEY = 'trailword:board';
-const GUMROAD_HINTS_URL = 'https://ammaar345.gumroad.com/l/trailword-hints';
+const GUMROAD_HINTS_URL = 'https://sneakylabs.gumroad.com/l/trailword-hints';
 const HINTS_PURCHASED_KEY = 'trailword:hints-purchased';
 
 interface Row {
@@ -499,47 +499,71 @@ export default function Game() {
     window.open(checkoutUrl, '_blank');
   };
 
-  const getUniqueAnswerLetter = (): string => {
-    // Pick a random unique letter from answer not yet guessed
-    const guessed = new Set(rows.flatMap(r => r.statuses ? r.letters : []));
-    const available = puzzle.answer.split('').filter(l => !guessed.has(l));
-    if (available.length === 0) return puzzle.answer[0];
-    return available[Math.floor(Math.random() * available.length)];
+  // Present letters in the answer, de-duplicated in order, excluding any
+  // the player has already placed correctly. Stable across refresh because
+  // keyStatus persists — so hint 2 never repeats hint 1's letter.
+  const hintLetterCandidates = (): string[] => {
+    const seen = new Set<string>();
+    const out: string[] = [];
+    for (const ch of puzzle.answer) {
+      const up = ch.toUpperCase();
+      if (seen.has(up)) continue;
+      seen.add(up);
+      if (keyStatus[up] === 'correct') continue; // already known — don't waste a hint
+      out.push(up);
+    }
+    return out;
   };
 
-  const handleFreeHint = () => {
+  // Board positions not yet guessed correctly.
+  const unsolvedPositions = (): number[] => {
+    const solved = new Set<number>();
+    for (const row of rows) {
+      if (!row.statuses) continue;
+      row.statuses.forEach((s, i) => { if (s === 'correct') solved.add(i); });
+    }
+    return [0, 1, 2, 3, 4].filter((i) => !solved.has(i));
+  };
+
+  // Soft-escalation hint ladder (max 3 per puzzle, never auto-solves):
+  //  0 -> 1  free : "the word contains X"  (present letter, no position)
+  //  1 -> 2  free : "the word also contains Y"  (a different present letter)
+  //  2 -> 3  paid : "position N is X"  (one position, tell-only) — buy prompt if not purchased
+  //  >= 3         : capped
+  // No auto-typing anywhere; the player always types letters themselves.
+  const handleHint = () => {
     sounds.play('click');
     if (gameOver) return;
 
-    // If already purchased, give unlimited hints
-    if (hintsPurchased) {
-      const pos = currentGuess.length < COL_COUNT ? currentGuess.length : 0;
+    // Free tier: two present-letter reveals (no position, no auto-type)
+    if (hintLevel === 0 || hintLevel === 1) {
+      const candidates = hintLetterCandidates();
+      const letter = candidates.length
+        ? candidates[hintLevel % candidates.length]
+        : puzzle.answer[0].toUpperCase();
+      showMessage(hintLevel === 0 ? `The word contains "${letter}"` : `The word also contains "${letter}"`);
+      setHintLevel(hintLevel + 1);
+      return;
+    }
+
+    // Paid tier: a single position reveal
+    if (hintLevel === 2) {
+      if (!hintsPurchased) { purchaseHints(); return; }
+      const unsolved = unsolvedPositions();
+      // Never reveal the last remaining letter — keep it a puzzle
+      if (unsolved.length <= 1) {
+        showMessage("You're almost there — finish it yourself!");
+        return;
+      }
+      const pos = unsolved[0];
       const letter = puzzle.answer[pos].toUpperCase();
-      showMessage(`Hint: position ${pos + 1} is ${letter}`);
-      addLetter(puzzle.answer[pos].toUpperCase());
+      showMessage(`Position ${pos + 1} is "${letter}"`);
+      setHintLevel(3);
       return;
     }
 
-    if (hintLevel === 0) {
-      // Tier 1: reveal a letter in the word
-      const letter = getUniqueAnswerLetter().toUpperCase();
-      setHintLevel(1);
-      showMessage(`The answer contains "${letter}"`);
-      return;
-    }
-
-    if (hintLevel === 1) {
-      // Tier 2: reveal a specific position
-      const pos = currentGuess.length < COL_COUNT ? currentGuess.length : 0;
-      const letter = puzzle.answer[pos].toUpperCase();
-      setHintLevel(2);
-      showMessage(`Hint: position ${pos + 1} is ${letter}`);
-      addLetter(puzzle.answer[pos].toUpperCase());
-      return;
-    }
-
-    // Tier 3+: buy hints
-    purchaseHints();
+    // Capped at 3 per puzzle
+    showMessage('No more hints for this puzzle');
   };
 
   const handleShare = () => {
@@ -707,7 +731,7 @@ export default function Game() {
           <ActionButton variant="blue"
             label={hintLevel >= 2 && !hintsPurchased ? 'Buy hints' : 'Hint'}
             icon={<HintIcon className="size-4" />}
-            onClick={handleFreeHint}
+            onClick={handleHint}
           />
           <ActionButton variant="blue"
             label="Share"

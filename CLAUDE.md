@@ -105,7 +105,7 @@ Each option requires $0 upfront (Cloudflare Pages hosting, Gumroad 10% fee only 
 
 | Method | Setup | Est. Revenue |
 |--------|-------|-------------|
-| **Gumroad hint packs** — $3 unlimited hints (buy hints link already in UI) | Create Gumroad product, wire purchase flow | $30-100/mo |
+| **Gumroad Extra Hints** — $3 for a 3rd hint per puzzle (buy hints link already in UI) | Create Gumroad product, wire purchase flow | $30-100/mo |
 | **Carbon Ads** — ethical ad network on game page | Paste snippet into GamePage.tsx | $20-80/mo at current traffic |
 | **Premium supporter** — $5 one-time via Gumroad, unlocks stats history + custom trails | Gumroad product, check purchase via localStorage flag | $20-50/mo |
 | **Tip jar** — Buy Me a Coffee / Ko-fi link | Free account, add link to footer | ~$10-30/mo |
@@ -162,7 +162,7 @@ Priority order: Gumroad hint packs → Carbon Ads → Premium supporter → Arch
 - Tier 2 (level 1): reveals exact position ("Position 3 is R") — same as old single-hint behavior
 - Tier 3 (level 2+): redirects to Gumroad purchase if not already bought
 - Backward-compatible with saved boards that used old `freeHintUsed` field
-- Unlimited hints after purchase
+- Extra hint per puzzle after purchase (see Gumroad Extra Hints section for current soft-escalation model)
 
 ## Session Fixes (June 25, 2026)
 
@@ -254,11 +254,17 @@ Priority order: Gumroad hint packs → Carbon Ads → Premium supporter → Arch
 - `public/privacy.html` (AdSense requirement) linked from footer.
 - Status: wired + live, waiting on Google site approval (ads render blank until Sites shows "Ready" — days to ~2 weeks). Nothing more to code.
 
-### Gumroad hints not fully wired
-- URL `https://ammaar345.gumroad.com/l/trailword-hints` in Game.tsx constant
-- 2 free hints (letter reveal → position reveal), then redirect to buy
-- Hints purchased state stored in `localStorage['trailword:hints-purchased']` (manual "I've purchased" button in Settings)
-- Need to: create Gumroad product with `?checkout=true` return param
+### Gumroad Extra Hints — code wired, awaiting product creation
+- URL `https://sneakylabs.gumroad.com/l/trailword-hints` in Game.tsx (`GUMROAD_HINTS_URL`)
+- Soft-escalation hint ladder (`handleHint` in Game.tsx), max 3/puzzle, never auto-solves:
+  - Level 0→1 (free): "The word contains X" — a present letter, no position, no auto-type
+  - Level 1→2 (free): "The word also contains Y" — a different present letter (distinct via keyStatus, stable across refresh)
+  - Level 2→3 (paid): "Position N is X" — one position, tell-only, no auto-type. Buy prompt if not purchased.
+  - Level ≥3: "No more hints for this puzzle"
+- Never-last-letter guard: position reveal only fires when ≥2 positions unsolved, else "You're almost there"
+- No auto-typing anywhere (was removed with the unlimited model) — player types every letter
+- Purchased flag: `localStorage['trailword:hints-purchased']` (honor-system "I've purchased, activate hints" button in Settings)
+- Still to do (sneaky): create the Gumroad product, slug exactly `trailword-hints`, cover/thumb in `marketing/`
 
 ## Session Fixes (June 27, 2026)
 
