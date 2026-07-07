@@ -247,12 +247,12 @@ Priority order: Gumroad hint packs → Carbon Ads → Premium supporter → Arch
 
 ## Pending
 
-### AdSense — awaiting publisher + slot IDs from sneaky
+### AdSense — ACTIVATED July 7, 2026 (awaiting Google approval)
 - Carbon Ads dropped July 2, 2026 (requires 10k monthly views; site below threshold). `CarbonAds.tsx` deleted.
-- Replaced with `src/components/ui/AdSlot.tsx` — Google AdSense (no traffic minimum), renders nothing until activated
-- To activate: set `ADSENSE_CLIENT` (ca-pub-...) and `ADSENSE_SLOT` (ad unit id) constants in AdSlot.tsx
-- `public/privacy.html` added (AdSense approval requirement) — linked from footer, covers localStorage, dictionary API, AdSense, Gumroad
-- sneaky's steps: adsense.google.com signup → add site trailword.pages.dev → wait for approval → create display ad unit → send both IDs
+- `src/components/ui/AdSlot.tsx` — Google AdSense footer unit. Publisher `ca-pub-4302153561917574`, slot `6526378886`. Component pushes to adsbygoogle queue on mount.
+- Loader script in `index.html` <head> (needed on first paint for approval). `public/ads.txt` authorizes Google as seller (payment requirement).
+- `public/privacy.html` (AdSense requirement) linked from footer.
+- Status: wired + live, waiting on Google site approval (ads render blank until Sites shows "Ready" — days to ~2 weeks). Nothing more to code.
 
 ### Gumroad hints not fully wired
 - URL `https://ammaar345.gumroad.com/l/trailword-hints` in Game.tsx constant
