@@ -4,17 +4,13 @@ import { useEffect, useRef } from 'react';
 /**
  * Google AdSense ad slot.
  *
- * To activate:
- * 1. Sign up at https://adsense.google.com (no traffic minimum)
- * 2. Add trailword.pages.dev as a site and wait for approval
- * 3. Set ADSENSE_CLIENT to your publisher ID (ca-pub-XXXXXXXXXXXXXXXX)
- * 4. Create a display ad unit and set ADSENSE_SLOT to its slot ID
- *
- * Renders nothing until both IDs are set, so it is safe to ship disabled.
- * The AdSense loader script is injected once, on first mount.
+ * The loader script lives in index.html <head> (needed on first paint for
+ * AdSense approval + verification). This component only registers the unit
+ * by pushing to the adsbygoogle queue on mount. Renders nothing while the
+ * IDs are empty, so it is safe to ship disabled.
  */
-const ADSENSE_CLIENT = ''; // ca-pub-XXXXXXXXXXXXXXXX
-const ADSENSE_SLOT = ''; // numeric slot id from the ad unit
+const ADSENSE_CLIENT = 'ca-pub-4302153561917574';
+const ADSENSE_SLOT = '6526378886';
 
 declare global {
   interface Window {
@@ -28,20 +24,10 @@ export default function AdSlot() {
   useEffect(() => {
     if (!ADSENSE_CLIENT || !ADSENSE_SLOT || pushed.current) return;
     pushed.current = true;
-
-    if (!document.querySelector('script[data-adsense-loader]')) {
-      const script = document.createElement('script');
-      script.src = `https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${ADSENSE_CLIENT}`;
-      script.async = true;
-      script.crossOrigin = 'anonymous';
-      script.setAttribute('data-adsense-loader', 'true');
-      document.head.appendChild(script);
-    }
-
     try {
       (window.adsbygoogle = window.adsbygoogle || []).push({});
     } catch {
-      // ad blocker or script failure — slot stays empty, game unaffected
+      // ad blocker or loader not ready — slot stays empty, game unaffected
     }
   }, []);
 
