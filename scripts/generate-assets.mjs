@@ -17,15 +17,18 @@ const FONTS = [
   join(root, 'scripts/fonts/SpaceGrotesk-Medium.ttf'),
 ];
 
-function render(svg, width, file) {
+function render(svg, width, file, dir = out) {
   const resvg = new Resvg(svg, {
     fitTo: { mode: 'width', value: width },
     font: { fontFiles: FONTS, loadSystemFonts: false, defaultFontFamily: 'Space Grotesk' },
   });
   const png = resvg.render().asPng();
-  writeFileSync(join(out, file), png);
+  mkdirSync(dir, { recursive: true });
+  writeFileSync(join(dir, file), png);
   console.log(`${file}  ${width}px  ${(png.length / 1024).toFixed(1)} KB`);
 }
+
+const marketing = join(root, 'marketing');
 
 /* ---------------------------------------------------------------- */
 /* App icon — 3D mechanical keycap with a bold T, sitting on a      */
@@ -228,6 +231,78 @@ function ogSvg() {
 }
 
 /* ---------------------------------------------------------------- */
+/* Gumroad product thumbnail 1280x720 — hint theme: glowing keycap  */
+/* revealing a letter, lightbulb spark, "Extra Hints" headline.     */
+/* Outputs to marketing/ (not served on the site).                  */
+/* ---------------------------------------------------------------- */
+
+function bigKeycap(cx, topY, w, capColor, deepColor, letter, glowColor) {
+  const h = Math.round(w * 0.9);
+  const r = Math.round(w * 0.2);
+  const x = cx - w / 2;
+  return `
+    <ellipse cx="${cx}" cy="${topY + h + 40}" rx="${w * 0.62}" ry="26" fill="#000000" opacity="0.35" filter="url(#gblur)"/>
+    <rect x="${x - 26}" y="${topY - 26}" width="${w + 52}" height="${h + 52}" rx="${r + 20}" fill="${glowColor}" opacity="0.5" filter="url(#gblur)"/>
+    <rect x="${x}" y="${topY + 10}" width="${w}" height="${h}" rx="${r}" fill="${deepColor}"/>
+    <rect x="${x}" y="${topY}" width="${w}" height="${h - 8}" rx="${r}" fill="${capColor}"/>
+    <rect x="${x + 8}" y="${topY + 8}" width="${w - 16}" height="${Math.round(h * 0.36)}" rx="${r - 4}" fill="#ffffff" opacity="0.32"/>
+    <text x="${cx}" y="${topY + (h - 8) / 2}" dy="0.36em" text-anchor="middle" font-family="Space Grotesk" font-weight="700" font-size="${Math.round(w * 0.5)}" fill="#ffffff">${letter}</text>`;
+}
+
+function sparkle(cx, cy, s, color) {
+  return `<path d="M${cx} ${cy - s} L${cx + s * 0.28} ${cy - s * 0.28} L${cx + s} ${cy} L${cx + s * 0.28} ${cy + s * 0.28} L${cx} ${cy + s} L${cx - s * 0.28} ${cy + s * 0.28} L${cx - s} ${cy} L${cx - s * 0.28} ${cy - s * 0.28} Z" fill="${color}"/>`;
+}
+
+function gumroadHintsSvg() {
+  return `
+<svg viewBox="0 0 1280 720" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="page" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#2e2320"/>
+      <stop offset="1" stop-color="#1a130f"/>
+    </linearGradient>
+    <filter id="gblur" x="-60%" y="-60%" width="220%" height="220%">
+      <feGaussianBlur stdDeviation="26"/>
+    </filter>
+    <filter id="bigblur" x="-60%" y="-60%" width="220%" height="220%">
+      <feGaussianBlur stdDeviation="70"/>
+    </filter>
+  </defs>
+  <rect width="1280" height="720" fill="url(#page)"/>
+
+  <!-- ambient warm glows -->
+  <circle cx="1120" cy="120" r="300" fill="#e89890" opacity="0.16" filter="url(#bigblur)"/>
+  <circle cx="180" cy="640" r="280" fill="#c8a288" opacity="0.12" filter="url(#bigblur)"/>
+
+  <!-- left: text block -->
+  <g transform="translate(96, 0)">
+    ${miniKeycap(0, 150, 64, '#ec9a91', '#b85c55', 'T')}
+    <text x="82" y="200" font-family="Space Grotesk" font-weight="700" font-size="44" fill="#f5e9e4">TrailWord</text>
+
+    <text x="0" y="320" font-family="Space Grotesk" font-weight="700" font-size="96" fill="#ffffff">Extra</text>
+    <text x="0" y="418" font-family="Space Grotesk" font-weight="700" font-size="96" fill="#f2a49b">Hints</text>
+
+    <text x="4" y="486" font-family="Space Grotesk" font-weight="500" font-size="30" fill="#c2b0a8">One more hint on every puzzle,</text>
+    <text x="4" y="524" font-family="Space Grotesk" font-weight="500" font-size="30" fill="#c2b0a8">for when you're truly stuck.</text>
+
+    <!-- price pill -->
+    <rect x="4" y="566" width="150" height="56" rx="28" fill="#e89890"/>
+    <text x="79" y="594" dy="0.36em" text-anchor="middle" font-family="Space Grotesk" font-weight="700" font-size="28" fill="#2a1a16">$3 once</text>
+  </g>
+
+  <!-- right: glowing hint keycap revealing a letter -->
+  ${sparkle(1006, 214, 30, '#ffe6b0')}
+  ${sparkle(940, 176, 18, '#ffd98a')}
+  ${sparkle(1092, 300, 20, '#ffdf9a')}
+  ${bigKeycap(1000, 300, 240, '#f2b4ab', '#c06a62', 'R', '#e89890')}
+
+  <!-- little revealed-position tag under the cap -->
+  <rect x="876" y="612" width="248" height="52" rx="16" fill="#3a2a26"/>
+  <text x="1000" y="638" dy="0.36em" text-anchor="middle" font-family="Space Grotesk" font-weight="600" font-size="24" fill="#f7d3d3">position 3 is R</text>
+</svg>`;
+}
+
+/* ---------------------------------------------------------------- */
 
 render(iconSvg({ detail: true }), 512, 'icon-512.png');
 render(iconSvg({ detail: true }), 192, 'icon-192.png');
@@ -239,3 +314,6 @@ render(ogSvg(), 1200, 'og-image.png');
 // favicon.svg — the simplified mark, served as-is (crisp at any size)
 writeFileSync(join(out, 'favicon.svg'), iconSvg({ detail: false }).trim());
 console.log('favicon.svg  vector');
+
+// Gumroad product thumbnail — not served on the site, lives in marketing/
+render(gumroadHintsSvg(), 1280, 'gumroad-extra-hints.png', marketing);
