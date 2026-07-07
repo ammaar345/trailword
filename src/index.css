@@ -788,6 +788,47 @@
   }
 }
 
+/* --- Page ambient background ---
+ * Fills the flat page canvas with warm glow pools + a faint dot texture
+ * so the margins never read as a cold black/white void. Two pseudo layers
+ * sit behind everything (game content is position:relative z-10+). */
+.page-ambient::before {
+  /* warm glow pools — corners + center wash */
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(60rem 40rem at 12% 8%, rgba(232,152,144,0.10), transparent 60%),
+    radial-gradient(55rem 45rem at 88% 18%, rgba(200,162,136,0.09), transparent 60%),
+    radial-gradient(70rem 50rem at 50% 108%, rgba(232,152,144,0.08), transparent 55%);
+}
+.dark .page-ambient::before {
+  background:
+    radial-gradient(60rem 40rem at 12% 8%, rgba(232,152,144,0.16), transparent 60%),
+    radial-gradient(55rem 45rem at 88% 18%, rgba(210,150,120,0.13), transparent 60%),
+    radial-gradient(70rem 50rem at 50% 110%, rgba(232,152,144,0.12), transparent 55%);
+}
+.page-ambient::after {
+  /* faint dot grid so pure black/white is never left bare */
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-image: radial-gradient(currentColor 1px, transparent 1px);
+  background-size: 26px 26px;
+  color: rgba(120,90,80,0.05);
+}
+.dark .page-ambient::after {
+  color: rgba(255,225,210,0.045);
+}
+/* warm the base canvas itself in dark mode (was flat #0a0a0a) */
+.dark .page-ambient {
+  background-color: #17110e;
+}
+
 /* --- Side decor (xl+ screens) --- */
 /* Mechanical switch anatomy, side view:
  *   cap (pastel, hovers) -> stem (colored, the "MX" part) ->
@@ -923,10 +964,10 @@
 
 .deco-blob {
   border-radius: 9999px;
-  background: radial-gradient(circle, rgba(232,152,144,0.14) 0%, rgba(232,152,144,0) 70%);
+  background: radial-gradient(circle, rgba(232,152,144,0.18) 0%, rgba(232,152,144,0) 70%);
 }
 .dark .deco-blob {
-  background: radial-gradient(circle, rgba(232,152,144,0.08) 0%, rgba(232,152,144,0) 70%);
+  background: radial-gradient(circle, rgba(232,152,144,0.16) 0%, rgba(232,152,144,0) 72%);
 }
 
 /* --- Mobile polish --- */

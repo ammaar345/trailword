@@ -11,7 +11,7 @@ interface GamePageProps {
 
 export default function GamePage({ dark, onToggleDark }: GamePageProps) {
   return (
-    <div className="min-h-screen bg-surface-50 text-surface-900 dark:bg-surface-950 dark:text-surface-100 font-sans transition-colors">
+    <div className="page-ambient relative min-h-screen bg-surface-50 text-surface-900 dark:bg-surface-950 dark:text-surface-100 font-sans transition-colors">
       <SideDecor />
       {/* Header */}
       <header className="marshmallow-header sticky top-0 z-50">
@@ -45,7 +45,7 @@ export default function GamePage({ dark, onToggleDark }: GamePageProps) {
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-surface-200 dark:border-surface-800 mt-12">
+      <footer className="relative z-10 border-t border-surface-200 dark:border-surface-800 mt-12">
         <div className="mx-auto max-w-2xl px-4 py-4">
           <AdSlot />
           <div className="flex items-center justify-between text-xs text-surface-400">
