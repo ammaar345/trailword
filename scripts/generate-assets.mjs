@@ -302,6 +302,47 @@ function gumroadHintsSvg() {
 </svg>`;
 }
 
+function gumroadHintsSquareSvg() {
+  return `
+<svg viewBox="0 0 1200 1200" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="page" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#2e2320"/>
+      <stop offset="1" stop-color="#1a130f"/>
+    </linearGradient>
+    <filter id="gblur" x="-60%" y="-60%" width="220%" height="220%">
+      <feGaussianBlur stdDeviation="30"/>
+    </filter>
+    <filter id="bigblur" x="-60%" y="-60%" width="220%" height="220%">
+      <feGaussianBlur stdDeviation="90"/>
+    </filter>
+  </defs>
+  <rect width="1200" height="1200" fill="url(#page)"/>
+
+  <circle cx="1000" cy="200" r="360" fill="#e89890" opacity="0.16" filter="url(#bigblur)"/>
+  <circle cx="220" cy="1000" r="320" fill="#c8a288" opacity="0.12" filter="url(#bigblur)"/>
+
+  <!-- wordmark, top -->
+  <g transform="translate(0, 150)">
+    ${miniKeycap(462, 0, 60, '#ec9a91', '#b85c55', 'T')}
+    <text x="540" y="46" font-family="Space Grotesk" font-weight="700" font-size="44" fill="#f5e9e4">TrailWord</text>
+  </g>
+
+  <!-- glowing hint keycap, center -->
+  ${sparkle(760, 430, 34, '#ffe6b0')}
+  ${sparkle(690, 388, 20, '#ffd98a')}
+  ${bigKeycap(600, 400, 300, '#f2b4ab', '#c06a62', 'R', '#e89890')}
+
+  <!-- headline -->
+  <text x="600" y="880" text-anchor="middle" font-family="Space Grotesk" font-weight="700" font-size="104" fill="#ffffff">Extra Hints</text>
+  <text x="600" y="948" text-anchor="middle" font-family="Space Grotesk" font-weight="500" font-size="38" fill="#c2b0a8">One more hint, every puzzle</text>
+
+  <!-- price pill -->
+  <rect x="490" y="1000" width="220" height="72" rx="36" fill="#e89890"/>
+  <text x="600" y="1036" dy="0.36em" text-anchor="middle" font-family="Space Grotesk" font-weight="700" font-size="38" fill="#2a1a16">$3 once</text>
+</svg>`;
+}
+
 /* ---------------------------------------------------------------- */
 
 render(iconSvg({ detail: true }), 512, 'icon-512.png');
@@ -315,5 +356,6 @@ render(ogSvg(), 1200, 'og-image.png');
 writeFileSync(join(out, 'favicon.svg'), iconSvg({ detail: false }).trim());
 console.log('favicon.svg  vector');
 
-// Gumroad product thumbnail — not served on the site, lives in marketing/
-render(gumroadHintsSvg(), 1280, 'gumroad-extra-hints.png', marketing);
+// Gumroad images — not served on the site, live in marketing/
+render(gumroadHintsSvg(), 1280, 'gumroad-extra-hints-cover.png', marketing); // 1280x720 cover
+render(gumroadHintsSquareSvg(), 1200, 'gumroad-extra-hints-thumb.png', marketing); // square thumbnail
