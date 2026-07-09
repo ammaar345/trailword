@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>About — TrailWord</title>
+    <meta name="description" content="About TrailWord, a free daily five-letter word puzzle with categories, clues, hints, streaks, and a colorblind-friendly design. No accounts, no ads-first design." />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <style>
+      :root {
+        color-scheme: light dark;
+        --bg: #fdfcfa;
+        --card: #ffffff;
+        --text: #3a3030;
+        --muted: #8a7a74;
+        --accent: #e89890;
+        --border: #eee6e0;
+      }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --bg: #161412;
+          --card: #201d1a;
+          --text: #e8e0dc;
+          --muted: #a89890;
+          --border: #35302c;
+        }
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--text);
+        font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+        line-height: 1.65;
+      }
+      main {
+        max-width: 680px;
+        margin: 0 auto;
+        padding: 48px 20px 80px;
+      }
+      h1 { font-size: 1.9rem; margin: 0 0 4px; }
+      .updated { color: var(--muted); font-size: 0.85rem; margin-bottom: 32px; }
+      h2 { font-size: 1.15rem; margin: 32px 0 8px; }
+      p, li { color: var(--text); font-size: 0.95rem; }
+      .card {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        padding: 20px 24px;
+        margin-bottom: 16px;
+      }
+      a { color: var(--accent); }
+      .back {
+        display: inline-block;
+        margin-bottom: 24px;
+        color: var(--muted);
+        text-decoration: none;
+        font-size: 0.9rem;
+      }
+      .back:hover { color: var(--text); }
+      .nav { margin-top: 28px; font-size: 0.9rem; }
+      .nav a { margin-right: 18px; }
+    </style>
+  </head>
+  <body>
+    <main>
+      <a class="back" href="/">&larr; Back to TrailWord</a>
+      <h1>About TrailWord</h1>
+      <p class="updated">A small, free word puzzle made for a daily five-minute break.</p>
+
+      <div class="card">
+        <h2>What TrailWord is</h2>
+        <p>
+          TrailWord is a free daily word puzzle you play in your browser. Each day
+          brings one new five-letter word to uncover, framed by a category and a
+          clue so the puzzle feels like following a trail rather than guessing in
+          the dark. It takes a couple of minutes, works on phones and desktops, and
+          asks for nothing — no sign-up, no download, no personal details.
+        </p>
+      </div>
+
+      <div class="card">
+        <h2>Why we built it</h2>
+        <p>
+          Daily word games are a lovely ritual, but many of them drop you in front
+          of a blank grid with zero context. TrailWord adds a category and a written
+          clue to every puzzle so newcomers have a foothold and veterans can chase a
+          faster solve. The word list spans more than a thousand answers across
+          themes like Nature, Food, Science, People, Places, and Ideas, which keeps
+          the daily puzzle feeling varied over the long run.
+        </p>
+      </div>
+
+      <div class="card">
+        <h2>What is inside</h2>
+        <ul>
+          <li>A Daily puzzle that is identical for every player and resets at midnight UTC.</li>
+          <li>An unlimited Practice mode for warming up with no guess cap.</li>
+          <li>Custom trails so you can turn any five-letter word into a puzzle to share.</li>
+          <li>Gentle, limited hints that guide without giving the answer away.</li>
+          <li>Streaks, win rates, and a guess-distribution graph, stored only on your device.</li>
+          <li>Five contrast themes, adjustable text size, optional sound, and a colorblind-friendly mode.</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <h2>Privacy and how it stays free</h2>
+        <p>
+          TrailWord has no accounts and stores your progress only in your browser.
+          The site is kept free through unobtrusive advertising and optional hint
+          packs; nothing about your gameplay is sold. You can read the full
+          <a href="/privacy">privacy policy</a> for the details on storage,
+          analytics, and advertising partners.
+        </p>
+      </div>
+
+      <div class="card">
+        <h2>Contact</h2>
+        <p>
+          Feedback, bug reports, or word suggestions are welcome at
+          <a href="mailto:robloxtruthtales@gmail.com">robloxtruthtales@gmail.com</a>.
+        </p>
+      </div>
+
+      <p class="nav" style="border-top:1px solid var(--border); padding-top:20px;">
+        <a href="/">Play now</a>
+        <a href="/how-to-play">How to Play</a>
+        <a href="/privacy">Privacy</a>
+      </p>
+    </main>
+  </body>
+</html>

@@ -51,6 +51,12 @@ export default function GamePage({ dark, onToggleDark }: GamePageProps) {
           <div className="flex items-center justify-between text-xs text-surface-400">
             <span>TrailWord &copy; {new Date().getFullYear()}</span>
             <div className="flex items-center gap-3">
+              <a href="/how-to-play.html" className="hover:text-surface-600 dark:hover:text-surface-300 transition">
+                How to Play
+              </a>
+              <a href="/about.html" className="hover:text-surface-600 dark:hover:text-surface-300 transition">
+                About
+              </a>
               <a href="/privacy.html" className="hover:text-surface-600 dark:hover:text-surface-300 transition">
                 Privacy
               </a>

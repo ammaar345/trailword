@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>How to Play — TrailWord</title>
+    <meta name="description" content="Learn how to play TrailWord: read the category and clue, guess the five-letter word in six tries, and use the color feedback to close in on the answer." />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <style>
+      :root {
+        color-scheme: light dark;
+        --bg: #fdfcfa;
+        --card: #ffffff;
+        --text: #3a3030;
+        --muted: #8a7a74;
+        --accent: #e89890;
+        --border: #eee6e0;
+      }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --bg: #161412;
+          --card: #201d1a;
+          --text: #e8e0dc;
+          --muted: #a89890;
+          --border: #35302c;
+        }
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--text);
+        font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+        line-height: 1.65;
+      }
+      main {
+        max-width: 680px;
+        margin: 0 auto;
+        padding: 48px 20px 80px;
+      }
+      h1 { font-size: 1.9rem; margin: 0 0 4px; }
+      .updated { color: var(--muted); font-size: 0.85rem; margin-bottom: 32px; }
+      h2 { font-size: 1.15rem; margin: 32px 0 8px; }
+      p, li { color: var(--text); font-size: 0.95rem; }
+      .card {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        padding: 20px 24px;
+        margin-bottom: 16px;
+      }
+      a { color: var(--accent); }
+      .back {
+        display: inline-block;
+        margin-bottom: 24px;
+        color: var(--muted);
+        text-decoration: none;
+        font-size: 0.9rem;
+      }
+      .back:hover { color: var(--text); }
+      .legend { display: flex; align-items: center; gap: 12px; margin: 6px 0; }
+      .swatch { width: 28px; height: 28px; border-radius: 8px; flex: 0 0 auto; border: 1px solid var(--border); }
+      .nav { margin-top: 28px; font-size: 0.9rem; }
+      .nav a { margin-right: 18px; }
+    </style>
+  </head>
+  <body>
+    <main>
+      <a class="back" href="/">&larr; Back to TrailWord</a>
+      <h1>How to Play TrailWord</h1>
+      <p class="updated">A daily five-letter word puzzle with a category and a clue.</p>
+
+      <div class="card">
+        <h2>The goal</h2>
+        <p>
+          Every day, TrailWord picks one secret five-letter word. Your job is to
+          guess it in six tries or fewer. Unlike a plain word-guessing game, you
+          are not starting blind: each puzzle shows you a <strong>category</strong>
+          (for example, Nature, Food, or Science) and a short <strong>clue</strong>
+          that nudges you toward the answer. Use both to make your opening guess
+          count.
+        </p>
+      </div>
+
+      <div class="card">
+        <h2>Making a guess</h2>
+        <p>
+          Type any real five-letter English word and press Enter. TrailWord checks
+          your guess against a dictionary of nearly sixteen thousand valid words,
+          so obscure-but-real words are accepted while random letter strings are
+          rejected with a gentle shake. After you submit, every tile changes color
+          to tell you how close you are.
+        </p>
+      </div>
+
+      <div class="card">
+        <h2>Reading the colors</h2>
+        <div class="legend">
+          <span class="swatch" style="background:#f7d3d3"></span>
+          <span><strong>Right letter, right spot.</strong> This letter belongs here — lock it in.</span>
+        </div>
+        <div class="legend">
+          <span class="swatch" style="background:#edd5d5"></span>
+          <span><strong>Right letter, wrong spot.</strong> The word contains this letter, but somewhere else.</span>
+        </div>
+        <div class="legend">
+          <span class="swatch" style="background:#ece8e4"></span>
+          <span><strong>Not in the word.</strong> Skip this letter for the rest of the puzzle.</span>
+        </div>
+        <p>
+          The on-screen keyboard updates with the same colors, so you always have a
+          running record of which letters are still in play. A colorblind-friendly
+          palette with shape patterns is available in Settings.
+        </p>
+      </div>
+
+      <div class="card">
+        <h2>Hints when you are stuck</h2>
+        <p>
+          Tap the Hint button for a nudge that never solves the puzzle for you. The
+          first hint tells you a letter the word contains; the second reveals a
+          different letter; a further hint can point to one exact position. Hints
+          are limited per puzzle so the challenge stays intact.
+        </p>
+      </div>
+
+      <div class="card">
+        <h2>Daily, Practice, and Custom trails</h2>
+        <p>
+          The <strong>Daily</strong> puzzle is the same word for everyone and
+          resets at midnight UTC — a countdown shows how long until the next one.
+          <strong>Practice</strong> mode gives you unlimited puzzles with no guess
+          limit, perfect for warming up. <strong>Custom</strong> trails let you
+          enter any five-letter word to build a puzzle to share with a friend.
+        </p>
+      </div>
+
+      <div class="card">
+        <h2>Streaks and stats</h2>
+        <p>
+          Solve the Daily puzzle on consecutive days to build a streak. TrailWord
+          keeps your win percentage, current and best streaks, and a distribution
+          of how many guesses you usually need. All of it is stored privately in
+          your browser — there are no accounts and nothing is uploaded.
+        </p>
+      </div>
+
+      <p class="nav" style="border-top:1px solid var(--border); padding-top:20px;">
+        <a href="/">Play now</a>
+        <a href="/about">About</a>
+        <a href="/privacy">Privacy</a>
+      </p>
+    </main>
+  </body>
+</html>
